@@ -1,6 +1,7 @@
-import { TOTAL_LESSONS, TOTAL_STEPS, UNITS, unitNumber, type LessonRef } from '../data/course'
+import { TOTAL_LESSONS, TOTAL_STEPS, UNITS, unitNumber } from '../data/course'
 import { TWO_OCTAVES_FROM_MIDDLE_C } from '../lib/keyboard'
 import { lessonKey } from '../data/course'
+import { curriculumHref, lessonHref } from '../lib/route'
 import { CompletedCheck } from './CompletedCheck'
 import { Piano } from './Piano'
 
@@ -13,7 +14,6 @@ interface LandingProps {
   onResume: () => void
   hasProgress: boolean
   onCurriculum: () => void
-  onOpenUnit: (ref: LessonRef) => void
 }
 
 export function Landing({
@@ -25,7 +25,6 @@ export function Landing({
   onResume,
   hasProgress,
   onCurriculum,
-  onOpenUnit,
 }: LandingProps) {
   return (
     <main className="grow">
@@ -107,14 +106,7 @@ export function Landing({
       <section className="landing-curriculum">
         <div className="section-head">
           <h2>The seven units</h2>
-          <a
-            href="#"
-            className="section-head-link"
-            onClick={(e) => {
-              e.preventDefault()
-              onCurriculum()
-            }}
-          >
+          <a href={curriculumHref} className="section-head-link">
             All lessons
           </a>
         </div>
@@ -127,11 +119,7 @@ export function Landing({
               <a
                 key={unit.title}
                 className="lesson-row"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  onOpenUnit({ unit: u, lesson: 0 })
-                }}
+                href={lessonHref({ unit: u, lesson: 0 })}
               >
                 <span className="lesson-row-num">{unitNumber(u)}</span>
                 <span className="lesson-row-body">

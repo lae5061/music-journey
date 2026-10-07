@@ -6,7 +6,9 @@ reharmonisation. Every idea is introduced by playing it: the keyboard highlights
 notes in question, the notation shows how they are written, and you hear the result
 before you read the definition.
 
-React + TypeScript, built with Vite. No backend; progress lives in `localStorage`.
+React + TypeScript, built with Vite. No backend; progress lives in `localStorage`, and
+every screen has a URL (`#/lesson/2.03/4`) so lessons can be bookmarked and the back
+button steps back through the course.
 
 ```bash
 npm install
@@ -41,7 +43,7 @@ what the notation is drawn from, so a lesson's sound and its picture cannot drif
 
 ```
 src/
-  App.tsx              screen state and lesson navigation
+  App.tsx              the URL decides the screen; progress, navigation, completion
   config.ts            fixed options: key labels, keyboard voice
   data/
     course.ts          the seven units, lesson addressing, navigation
@@ -66,6 +68,7 @@ src/
     keyboard.ts        key geometry, and choosing a range that fits
     notes.ts / pitch.ts  MIDI maths, and written pitch ("F#3")
     progress.ts        localStorage, reconciled against the current course
+    route.ts           hash routes: #/, #/curriculum, #/lesson/2.03/4
 ```
 
 Notes are MIDI numbers throughout — 60 is middle C.
@@ -108,7 +111,5 @@ And progress persists, per browser.
 - **No photographs.** The design assistant asked for a grayscale photo of hand position;
   the posture and hand-position steps use line diagrams instead. A real photo would be
   better and the `.grayscale` wrapper is ready for one.
-- **No routing.** Screens are React state, so there are no lesson URLs to bookmark or
-  share, and the browser back button does not step through the course.
 - **No tests.** The course was verified by crawling all 154 steps in a browser at phone
   and desktop widths, but none of that is checked in.

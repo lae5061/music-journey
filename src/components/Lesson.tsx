@@ -10,6 +10,7 @@ import {
   type LessonRef,
 } from '../data/course'
 import type { Phrase } from '../lib/music'
+import { lessonHref } from '../lib/route'
 import { useMediaQuery, WIDE } from '../lib/useMediaQuery'
 import { CompletedCheck } from './CompletedCheck'
 import { StepView } from './StepView'
@@ -83,12 +84,8 @@ export function Lesson({
             <a
               key={l.title}
               className={`lesson-nav-item${i === at.lesson ? ' is-current' : ''}`}
-              href="#"
+              href={lessonHref(ref)}
               aria-current={i === at.lesson ? 'true' : undefined}
-              onClick={(e) => {
-                e.preventDefault()
-                onOpenLesson(ref)
-              }}
             >
               <span>{lessonNumber(i)}</span>
               <span>{l.title}</span>

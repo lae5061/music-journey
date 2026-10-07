@@ -7,15 +7,15 @@ import {
   type LessonRef,
 } from '../data/course'
 import { lessonStatus } from '../lib/lessonStatus'
+import { lessonHref } from '../lib/route'
 import { CompletedCheck } from './CompletedCheck'
 
 interface CurriculumProps {
   current: LessonRef
   completed: ReadonlySet<string>
-  onOpenLesson: (ref: LessonRef) => void
 }
 
-export function Curriculum({ current, completed, onOpenLesson }: CurriculumProps) {
+export function Curriculum({ current, completed }: CurriculumProps) {
   const done = completed.size
 
   return (
@@ -76,11 +76,7 @@ export function Curriculum({ current, completed, onOpenLesson }: CurriculumProps
                 <a
                   key={lesson.title}
                   className="card lesson-card"
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    onOpenLesson(ref)
-                  }}
+                  href={lessonHref(ref)}
                 >
                   <div className="lesson-card-head">
                     <span className="lesson-card-num">{lessonNumber(l)}</span>

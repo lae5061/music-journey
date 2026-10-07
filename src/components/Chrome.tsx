@@ -1,41 +1,26 @@
-import type { Screen } from '../App'
 import { TOTAL_LESSONS, UNITS } from '../data/course'
+import { curriculumHref, landingHref, resumeHref, type Screen } from '../lib/route'
 
 interface HeaderProps {
   screen: Screen
-  onNavigate: (screen: Screen) => void
 }
 
-export function SiteHeader({ screen, onNavigate }: HeaderProps) {
-  const link = (target: Screen, text: string) => (
-    <a
-      href="#"
-      aria-current={screen === target ? 'page' : undefined}
-      onClick={(e) => {
-        e.preventDefault()
-        onNavigate(target)
-      }}
-    >
+export function SiteHeader({ screen }: HeaderProps) {
+  const link = (target: Screen, href: string, text: string) => (
+    <a href={href} aria-current={screen === target ? 'page' : undefined}>
       {text}
     </a>
   )
 
   return (
     <header className="nav site-header">
-      <a
-        className="nav-brand"
-        href="#"
-        onClick={(e) => {
-          e.preventDefault()
-          onNavigate('landing')
-        }}
-      >
+      <a className="nav-brand" href={landingHref}>
         <span className="brand-mark" aria-hidden="true" />
         Tonic
       </a>
-      {link('landing', 'Overview')}
-      {link('curriculum', 'Curriculum')}
-      {link('lesson', 'Lesson')}
+      {link('landing', landingHref, 'Overview')}
+      {link('curriculum', curriculumHref, 'Curriculum')}
+      {link('lesson', resumeHref, 'Lesson')}
     </header>
   )
 }

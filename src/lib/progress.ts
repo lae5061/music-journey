@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   FIRST_LESSON,
   isValidRef,
@@ -59,3 +60,24 @@ export function saveProgress(progress: Progress) {
 
 export const isComplete = (completed: ReadonlySet<string>, ref: LessonRef) =>
   completed.has(lessonKey(ref))
+
+/** What the app holds in memory: the stored shape, with completed lessons as a Set. */
+export interface Place {
+  completed: Set<string>
+  at: LessonRef
+  step: number
+}
+
+/** Progress as React state, seeded from storage and written back on every change. */
+export function useProgress() {
+  const [place, setPlace] = useState<Place>(() => {
+    const saved = loadProgress()
+    return { completed: new Set(saved.completed), at: saved.at, step: saved.step }
+  })
+
+  useEffect(() => {
+    saveProgress({ completed: [...place.completed], at: place.at, step: place.step })
+  }, [place])
+
+  return { place, setPlace }
+}
