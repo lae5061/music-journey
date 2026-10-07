@@ -119,7 +119,11 @@ function strike(
 }
 
 /** The metronome: a bright tick on beat one, a duller one elsewhere. */
-function click(c: AudioContext, at: number, accented: boolean) {
+interface Ticking {
+  stop(): void
+}
+
+function click(c: AudioContext, at: number, accented: boolean): Ticking {
   const osc = c.createOscillator()
   const amp = c.createGain()
   osc.type = 'square'
@@ -130,6 +134,15 @@ function click(c: AudioContext, at: number, accented: boolean) {
   amp.connect(c.destination)
   osc.start(at)
   osc.stop(at + 0.06)
+  return {
+    stop() {
+      try {
+        osc.stop()
+      } catch {
+        // Already finished.
+      }
+    },
+  }
 }
 
 /** Sound one note immediately — a learner tapping a key. */
@@ -137,6 +150,21 @@ export function playNote(midi: number, timbre: Timbre, duration = 1.2, velocity 
   const c = audioContext()
   if (!c) return
   strike(c, midi, c.currentTime, duration, velocity, timbre)
+}
+
+/** A metronome on its own: `count` beats at `tempo`, the first of each bar accented. */
+export function playClicks(count: number, tempo: number, perBar = 4): Playback {
+  const c = audioContext()
+  if (!c) return { stop() {} }
+  const beat = 60 / tempo
+  const start = c.currentTime + 0.06
+  const ticks: Ticking[] = []
+  for (let b = 0; b < count; b++) ticks.push(click(c, start + b * beat, b % perBar === 0))
+  return {
+    stop() {
+      ticks.forEach((t) => t.stop())
+    },
+  }
 }
 
 export interface Playback {

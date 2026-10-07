@@ -1,9 +1,19 @@
-import { GAMES, getGame, type GameId } from '../data/games'
-import { gameHref, gamesHref } from '../lib/route'
+import { GAMES, type GameId } from '../data/games'
+import { gameHref } from '../lib/route'
+import { SightReading } from './games/SightReading'
+
+interface GamesProps {
+  game: GameId | null
+  part: string | null
+  pressed: ReadonlySet<number>
+  onPressKey: (midi: number) => void
+}
 
 /** The games index: one card per drill. */
-export function Games({ game }: { game: GameId | null }) {
-  if (game) return <GameScreen id={game} />
+export function Games({ game, part, pressed, onPressKey }: GamesProps) {
+  if (game === 'sight-reading') {
+    return <SightReading part={part} pressed={pressed} onPressKey={onPressKey} />
+  }
 
   return (
     <main className="curriculum games">
@@ -28,19 +38,6 @@ export function Games({ game }: { game: GameId | null }) {
           </a>
         ))}
       </div>
-    </main>
-  )
-}
-
-function GameScreen({ id }: { id: GameId }) {
-  const game = getGame(id)
-  return (
-    <main className="curriculum games">
-      <h6 className="kicker">
-        <a href={gamesHref}>Games</a> · {game.title}
-      </h6>
-      <h1>{game.title}</h1>
-      <p className="curriculum-lede">{game.summary}</p>
     </main>
   )
 }

@@ -20,9 +20,8 @@ export const GAMES: Game[] = [
   {
     id: 'sight-reading',
     title: 'Sight reading',
-    summary: 'A note appears on the staff; find it on the keyboard before the next one arrives.',
+    summary: 'Three ways to drill it: one note at a time, a stream of notes to a line, or a whole line to a click.',
     taughtIn: '1.03',
   },
 ]
 
-export const getGame = (id: GameId): Game => GAMES.find((g) => g.id === id)!

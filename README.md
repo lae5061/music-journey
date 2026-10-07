@@ -34,6 +34,21 @@ progression identification, metre and style identification, key signatures. Pass
 marks the lesson complete, so "complete" means the learner did something rather than
 that they clicked Next.
 
+## Games
+
+Beside the course, a Games tab holds drills for the skills that only come with
+repetition. The first is sight reading, in three modes over one set of eight levels
+(treble five-finger range up to the grand staff with accidentals):
+
+- **Flash** — one note on the staff; play it on the keyboard before a bar drains. A wrong
+  or slow answer lights the right key and waits for it. Scores the streak.
+- **Stream** — notes slide toward a line; play each as it crosses. The pace rises every
+  eight notes and three misses end the run. Scores points, with a bonus for timing.
+- **Line** — a generated four-bar melody, a count-in, then play it through to a click.
+  Afterwards every note is marked right, wrong (and what was played), early or late.
+
+Best scores are kept per level and mode in `localStorage`.
+
 ## How it is put together
 
 Everything sounded — a single note, a scale, an Alberti bass, three-against-two, a swung
@@ -49,6 +64,7 @@ src/
     course.ts          the seven units, lesson addressing, navigation
     types.ts           what a step may contain
     units/*.ts         all course content — one file per unit
+    games.ts           the games list
   components/
     Piano.tsx          the keyboard: fits its container, never scrolls
     StepView.tsx       assembles a step from its parts
@@ -56,6 +72,8 @@ src/
     Curriculum.tsx     all seven units and their lesson cards
     Landing.tsx        hero, try-it keyboard, the method, unit list
     Quiz.tsx           the scored exercises
+    Games.tsx          the games index
+    games/             SightReading.tsx shell; Flash, Stream, Line modes
     ChordChart.tsx     lead sheets and chord grids
     Diagram.tsx        octave map, circle of fifths, hands, posture, note values, pedals
     notation/
@@ -68,7 +86,8 @@ src/
     keyboard.ts        key geometry, and choosing a range that fits
     notes.ts / pitch.ts  MIDI maths, and written pitch ("F#3")
     progress.ts        localStorage, reconciled against the current course
-    route.ts           hash routes: #/, #/curriculum, #/lesson/2.03/4
+    route.ts           hash routes: #/, #/curriculum, #/lesson/2.03/4, #/games/sight-reading/stream
+    sightReading.ts    levels, note pools, melody generation, best scores
 ```
 
 Notes are MIDI numbers throughout — 60 is middle C.

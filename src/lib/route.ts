@@ -12,7 +12,7 @@ import { isGameId, type GameId } from '../data/games'
  *   #/lesson/2.03         lesson 2.03 from its first step
  *   #/lesson/2.03/4       lesson 2.03, step 4
  *   #/games               the practice games
- *   #/games/sight-reading one game
+ *   #/games/sight-reading one game, and #/games/sight-reading/stream one part of it
  *
  * Hash routes rather than paths because the app is static files with no server to
  * rewrite /lesson/2.03 back to index.html.
@@ -21,7 +21,7 @@ export type Route =
   | { screen: 'landing' }
   | { screen: 'curriculum' }
   | { screen: 'lesson'; at: LessonRef; step: number }
-  | { screen: 'games'; game: GameId | null }
+  | { screen: 'games'; game: GameId | null; part: string | null }
 
 export type Screen = Route['screen']
 
@@ -36,7 +36,7 @@ export const curriculumHref = '#/curriculum'
 /** "#/lesson" — the lesson in progress, whatever it is. */
 export const resumeHref = '#/lesson'
 export const gamesHref = '#/games'
-export const gameHref = (game: GameId) => `#/games/${game}`
+export const gameHref = (game: GameId, part?: string) => (part ? `#/games/${game}/${part}` : `#/games/${game}`)
 
 export const lessonHref = (ref: LessonRef, step = 0) =>
   step > 0 ? `#/lesson/${lessonLabel(ref)}/${step + 1}` : `#/lesson/${lessonLabel(ref)}`
@@ -50,7 +50,7 @@ export function formatRoute(route: Route): string {
     case 'lesson':
       return lessonHref(route.at, route.step)
     case 'games':
-      return route.game ? gameHref(route.game) : gamesHref
+      return route.game ? gameHref(route.game, route.part ?? undefined) : gamesHref
   }
 }
 
@@ -73,9 +73,9 @@ export function parseRoute(hash: string, saved: Position): Route {
   if (path === 'curriculum') return { screen: 'curriculum' }
 
   const [head, address, stepText, ...rest] = path.split('/')
-  if (head === 'games' && stepText === undefined) {
-    if (address === undefined) return { screen: 'games', game: null }
-    return isGameId(address) ? { screen: 'games', game: address } : { screen: 'games', game: null }
+  if (head === 'games' && rest.length === 0) {
+    if (address === undefined || !isGameId(address)) return { screen: 'games', game: null, part: null }
+    return { screen: 'games', game: address, part: stepText ?? null }
   }
   if (head !== 'lesson' || rest.length > 0) return { screen: 'landing' }
   if (address === undefined) return { screen: 'lesson', ...saved }

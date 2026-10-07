@@ -25,6 +25,8 @@ export interface StaffNote {
   triplet?: boolean
   /** Counting syllable printed under the note: "1", "&", "2 e & a". */
   count?: string
+  /** A class on the note's group, for colouring it after the fact. */
+  className?: string
   /** Fingering number printed above the note. */
   finger?: number
   /** Articulation mark. */

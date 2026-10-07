@@ -112,7 +112,9 @@ export default function App() {
 
       {route.screen === 'curriculum' && <Curriculum current={at} completed={completed} />}
 
-      {route.screen === 'games' && <Games game={route.game} />}
+      {route.screen === 'games' && (
+        <Games game={route.game} part={route.part} pressed={pressed} onPressKey={pressKey} />
+      )}
 
       {here && (
         <Lesson

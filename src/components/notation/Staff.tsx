@@ -57,7 +57,16 @@ interface Placed {
   offsetY: number
 }
 
-export function Staff({ spec, caption }: { spec: StaffSpec; caption?: string }) {
+export function Staff({
+  spec,
+  caption,
+  scale = 1.5,
+}: {
+  spec: StaffSpec
+  caption?: string
+  /** Screen pixels per drawing unit at most; the staff never grows past this. */
+  scale?: number
+}) {
   const grand = spec.clef === 'grand'
   const beatsPerBar = spec.time?.[0] ?? 4
 
@@ -137,7 +146,7 @@ export function Staff({ spec, caption }: { spec: StaffSpec; caption?: string }) 
       <svg
         className="staff"
         viewBox={`0 ${top} ${endX} ${viewHeight}`}
-        style={{ maxWidth: `${Math.round(endX * 1.5)}px` }}
+        style={{ maxWidth: `${Math.round(endX * scale)}px` }}
         role="img"
         aria-label={caption ?? 'Music notation'}
         fill="currentColor"
@@ -271,7 +280,7 @@ function Note({ placed, next }: { placed: Placed; next?: Placed }) {
   const accidental = note.accidental ?? (pitch.alter > 0 ? '#' : pitch.alter < 0 ? 'b' : undefined)
 
   return (
-    <g transform={`translate(0, ${offsetY})`}>
+    <g transform={`translate(0, ${offsetY})`} className={note.className} data-pitch={note.pitch}>
       <LedgerLines x={x} y={y} />
       {accidental && <Accidental kind={accidental} x={x - ACCIDENTAL_OFFSET} y={y} />}
 
