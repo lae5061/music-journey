@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useElementWidth } from '../../lib/useElementWidth'
 import { parsePitch } from '../../lib/pitch'
 import {
   BOARD,
+  BOARD_FOCUS,
   clefsOf,
   loadBests,
   randomTarget,
@@ -79,8 +81,6 @@ export function Stream({ level, pressed, onPressKey, register }: ModeProps) {
   const raf = useRef(0)
 
   const clefs = useMemo(() => clefsOf(level), [level])
-  // On a narrow screen, keep the board on the octave the next notes sit in.
-  const focus = useMemo(() => [60, 71], [])
 
   const ensureAhead = useCallback(
     (g: Game, until: number) => {
@@ -212,14 +212,18 @@ export function Stream({ level, pressed, onPressKey, register }: ModeProps) {
           </div>
         )}
       </div>
-      <Piano range={BOARD} focus={focus} pressed={pressed} onPress={press} label="Keyboard" />
+      <Piano range={BOARD} focus={BOARD_FOCUS} pressed={pressed} onPress={press} label="Keyboard" />
     </>
   )
 }
 
 // ── drawing ─────────────────────────────────────────────────────────────────
 
-const W = 640
+/** Drawing units across, at most; a phone gets fewer so the staff stays legible. */
+const MAX_W = 640
+const MIN_W = 320
+/** No fewer screen pixels per drawing unit than this. */
+const MIN_SCALE = 0.8
 const HIT_X = 110
 const PX_PER_S = 90
 const LINE_GAP = 10
@@ -229,12 +233,16 @@ const STEM = 30
 const MARGIN = 34
 
 function StreamStaff({ clefs, notes, now }: { clefs: Clef[]; notes: Note[]; now: number }) {
+  const box = useRef<HTMLDivElement>(null)
+  const width = useElementWidth(box)
+  const W = width > 0 ? Math.min(MAX_W, Math.max(MIN_W, Math.round(width / MIN_SCALE))) : MAX_W
   const height = clefs.length === 2 ? GRAND_GAP + STAFF_HEIGHT : STAFF_HEIGHT
   const top = -MARGIN
   const bottom = height + MARGIN
   const offsetOf = (clef: Clef) => (clefs.length === 2 && clef === 'bass' ? GRAND_GAP : 0)
 
   return (
+    <div ref={box} className="stream-box">
     <svg
       className="stream-staff"
       viewBox={`0 ${top} ${W} ${bottom - top}`}
@@ -257,6 +265,7 @@ function StreamStaff({ clefs, notes, now }: { clefs: Clef[]; notes: Note[]; now:
         return <StreamNote key={n.id} note={n} x={x} offsetY={offsetOf(n.target.clef)} />
       })}
     </svg>
+    </div>
   )
 }
 

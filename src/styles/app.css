@@ -566,6 +566,10 @@ button { font-family: inherit; white-space: nowrap; }
 .game-line-controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .game-hint { font-size: 14px; opacity: 0.8; }
 .game-keys { font-size: 13px; opacity: 0.7; margin: var(--space-3) 0 0; max-width: 72ch; }
+/* No computer keyboard to speak of on a touch screen. */
+@media (pointer: coarse) { .game-keys { display: none; } }
+.game-staff--line { flex-direction: column; align-items: center; gap: var(--space-3); }
+.stream-box { width: 100%; }
 
 .game-overlay { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); max-width: 56ch; }
 .game-overlay h3 { margin: 0; }
@@ -585,4 +589,24 @@ button { font-family: inherit; white-space: nowrap; }
   .game-board { padding: var(--space-3) var(--space-4) var(--space-4); }
   .game-stats { gap: var(--space-4); }
   .game-stat-value { font-size: 22px; }
+}
+
+/* On a phone the keyboard stays pinned to the bottom, so the staff and the keys are
+   both in view, and the page chrome above the board gives way to the game. */
+@media (max-width: 700px) {
+  .game h1 { font-size: 32px; }
+  .game .curriculum-lede { display: none; }
+  .game-controls { flex-direction: column; align-items: stretch; gap: var(--space-3); margin-bottom: var(--space-3); }
+  .game-tabs a { flex: 1; text-align: center; }
+  .game-level .unit-switch { min-width: 0; width: 100%; }
+  .game-staff { min-height: 0; }
+  /* Buttons before the sentence, so Start and Skip sit above the pinned keyboard. */
+  .game-board > .game-message { order: 9; }
+  .game-stats { gap: var(--space-3); justify-content: space-between; }
+  .game-stat { min-width: 0; }
+  .game-stat-label { font-size: 10px; white-space: nowrap; }
+  .game > .piano {
+    position: sticky; bottom: 0; z-index: 2;
+    background: var(--color-bg); padding-top: var(--space-2);
+  }
 }

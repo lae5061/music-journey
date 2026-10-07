@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { pitchClass } from '../../lib/notes'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 import {
   BOARD,
+  BOARD_FOCUS,
   loadBests,
-  middleOctave,
   randomTarget,
   recordBest,
   sameNameKeys,
@@ -16,6 +17,8 @@ import { Stat, type ModeProps } from './SightReading'
 
 /** How long a note waits before it counts as missed. */
 const LIMIT_S = 8
+/** Below this the staff draws smaller, so the keyboard and the buttons fit beneath it. */
+const ROOMY = '(min-width: 700px)'
 
 type Outcome = 'none' | 'right' | 'recovered' | 'wrong' | 'late'
 type Phase = 'ready' | 'playing'
@@ -33,10 +36,10 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
   const [outcome, setOutcome] = useState<Outcome>('none')
   const [lastTarget, setLastTarget] = useState(target)
   const shownAt = useRef(performance.now())
+  const roomy = useMediaQuery(ROOMY)
   const recent = useRef<ReturnType<typeof randomTarget>[]>([])
 
   const hint = useMemo(() => (missed ? new Set(sameNameKeys(target.midi)) : undefined), [missed, target])
-  const focus = useMemo(() => [middleOctave(target.midi)], [target])
 
   const miss = useCallback((why: Outcome) => {
     setStreak(0)
@@ -99,7 +102,7 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
 
   useEffect(() => register(press))
 
-  const average = answered ? (totalMs / answered / 1000).toFixed(1) : '–'
+  const average = answered ? `${(totalMs / answered / 1000).toFixed(1)} s` : '–'
   const message =
     phase === 'ready'
       ? `Play each note you see on the keyboard below — any octave will do. You have ${LIMIT_S} seconds a note.`
@@ -119,7 +122,7 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
         <div className="game-stats">
           <Stat label="Streak" value={String(streak)} accent />
           <Stat label="Best" value={String(best)} />
-          <Stat label="Seconds a note" value={average} />
+          <Stat label="Per note" value={average} />
           <Stat label="Answered" value={String(answered)} />
         </div>
         <div className="game-timer" aria-hidden="true">
@@ -132,7 +135,7 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
           )}
         </div>
         <div className="game-staff game-staff--flash">
-          <Staff spec={targetSpec(level, target)} scale={2.2} />
+          <Staff spec={targetSpec(level, target)} scale={roomy ? 2.2 : 1.5} />
         </div>
         <p
           className={`game-message${outcome === 'right' ? ' is-right' : missed ? ' is-wrong' : ''}`}
@@ -159,7 +162,7 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
       </div>
       <Piano
         range={BOARD}
-        focus={focus}
+        focus={BOARD_FOCUS}
         highlight={hint}
         pressed={pressed}
         onPress={press}

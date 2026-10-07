@@ -5,14 +5,15 @@ import { spell } from '../../lib/music'
 import { parsePitch } from '../../lib/pitch'
 import {
   BOARD,
+  BOARD_FOCUS,
   LINE_BARS,
   loadBests,
   makeMelody,
-  middleOctave,
   onsetsOf,
   recordBest,
   sameNote,
 } from '../../lib/sightReading'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 import { Piano } from '../Piano'
 import { Staff } from '../notation/Staff'
 import { Stat, type ModeProps } from './SightReading'
@@ -36,6 +37,8 @@ const BEATS_PER_BAR = 4
 const LINES_PER_SET = 5
 /** A note this far from its beat, as a fraction of one, is early or late. */
 const TIMING_SLACK = 0.3
+/** Below this, four bars on one line are too small to read; the line breaks in two. */
+const ONE_SYSTEM = '(min-width: 700px)'
 
 /** A four-bar line to a click. Afterwards every note is marked. */
 export function Line({ level, pressed, onPressKey, register }: ModeProps) {
@@ -47,6 +50,7 @@ export function Line({ level, pressed, onPressKey, register }: ModeProps) {
   const [lineNo, setLineNo] = useState(1)
   const [accuracies, setAccuracies] = useState<number[]>([])
   const [best, setBest] = useState(() => loadBests().line[level.id] ?? 0)
+  const oneSystem = useMediaQuery(ONE_SYSTEM)
 
   const presses = useRef<Press[]>([])
   const clicks = useRef<Playback | null>(null)
@@ -58,7 +62,6 @@ export function Line({ level, pressed, onPressKey, register }: ModeProps) {
   const beatS = 60 / melody.tempo
   const totalBeats = LINE_BARS * BEATS_PER_BAR
   const midis = useMemo(() => melody.notes.map((n) => parsePitch(n.pitch!).midi), [melody])
-  const focus = useMemo(() => midis.map(middleOctave), [midis])
 
   const setPhaseBoth = (p: Phase) => {
     phaseRef.current = p
@@ -136,12 +139,22 @@ export function Line({ level, pressed, onPressKey, register }: ModeProps) {
     nextLine()
   }
 
+  const shown = melody.notes.map((n, i) => (marks ? marked(n, marks[i]) : n))
   const spec: StaffSpec = {
     clef: melody.clef,
     time: [BEATS_PER_BAR, 4],
-    notes: melody.notes.map((n, i) => (marks ? marked(n, marks[i]) : n)),
+    notes: shown,
     counts: marks !== null,
   }
+  // On a phone, two bars to a line: the generator never splits a note across a barline.
+  const half = onsets.findIndex((b) => b >= (LINE_BARS / 2) * BEATS_PER_BAR)
+  const systems: StaffSpec[] =
+    oneSystem || half <= 0
+      ? [spec]
+      : [
+          { ...spec, notes: shown.slice(0, half) },
+          { ...spec, notes: shown.slice(half), time: undefined },
+        ]
 
   const lastAccuracy = accuracies[accuracies.length - 1]
   const setDone = phase === 'done' && lineNo >= LINES_PER_SET
@@ -159,8 +172,10 @@ export function Line({ level, pressed, onPressKey, register }: ModeProps) {
           <Stat label="Best line" value={best ? `${best}%` : '–'} />
         </div>
 
-        <div className="game-staff">
-          <Staff spec={spec} scale={2} />
+        <div className="game-staff game-staff--line">
+          {systems.map((s, i) => (
+            <Staff key={i} spec={s} scale={2} />
+          ))}
         </div>
 
         {phase === 'ready' && (
@@ -212,7 +227,7 @@ export function Line({ level, pressed, onPressKey, register }: ModeProps) {
           </div>
         )}
       </div>
-      <Piano range={BOARD} focus={focus} pressed={pressed} onPress={press} label="Keyboard" />
+      <Piano range={BOARD} focus={BOARD_FOCUS} pressed={pressed} onPress={press} label="Keyboard" />
     </>
   )
 }

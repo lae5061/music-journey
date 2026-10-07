@@ -33,8 +33,8 @@ export function sameNameKeys(midi: number): number[] {
   return out
 }
 
-/** The middle octave's copy of a note, to centre a narrow board on. */
-export const middleOctave = (midi: number) => 60 + (midi % 12)
+/** What a narrow screen keeps in view: the octave from middle C. The board never jumps. */
+export const BOARD_FOCUS = [60, 72]
 
 export interface Level {
   id: string
