@@ -250,31 +250,30 @@ function Posture() {
     <figure className="diagram">
       <svg className="posture" viewBox="0 0 340 200" role="img" aria-label="Sitting position at the keyboard">
         {/* keyboard and stand */}
-        <rect x={12} y={104} width={120} height="10" className="pos-solid" />
-        <line x1={40} y1={114} x2={40} y2={186} className="pos-line" />
-        <line x1={110} y1={114} x2={110} y2={186} className="pos-line" />
-        {/* bench */}
-        <rect x={214} y={126} width={96} height="8" className="pos-solid" />
-        <line x1={230} y1={134} x2={230} y2={186} className="pos-line" />
-        <line x1={294} y1={134} x2={294} y2={186} className="pos-line" />
+        <rect x={20} y={104} width={152} height="10" className="pos-solid" />
+        <line x1={48} y1={114} x2={48} y2={186} className="pos-line" />
+        <line x1={144} y1={114} x2={144} y2={186} className="pos-line" />
+        {/* bench — the player sits at its front edge */}
+        <rect x={220} y={130} width={96} height="8" className="pos-solid" />
+        <line x1={236} y1={138} x2={236} y2={186} className="pos-line" />
+        <line x1={300} y1={138} x2={300} y2={186} className="pos-line" />
         {/* floor */}
         <line x1={0} y1={186} x2={340} y2={186} className="pos-rule" />
-        {/* player */}
-        <circle cx={246} cy={44} r="16" className="pos-solid" />
-        <path d="M246 60v56" className="pos-body" />
-        <path d="M246 70L138 104" className="pos-body" />
-        <path d="M138 104h-12" className="pos-body" />
-        <path d="M246 116h-38v46" className="pos-body" />
-        <path d="M208 162h-26" className="pos-body" />
-        {/* angle marks */}
-        <path d="M228 104a22 22 0 0 0 14 12" className="pos-angle" />
-        <text className="pos-note" x={196} y={96}>
+        {/* player: head, torso, then upper arm hanging to an elbow at key height and a
+            level forearm; thigh along the bench, shin down, foot flat on the floor */}
+        <circle cx={232} cy={44} r="16" className="pos-solid" />
+        <path d="M232 60v70" className="pos-body" />
+        <path d="M232 68L220 104H168" className="pos-body" />
+        <path d="M232 130H190V184H164" className="pos-body" />
+        {/* the elbow angle */}
+        <path d="M208 104A12 12 0 0 1 224 93" className="pos-angle" />
+        <text className="pos-note" x={56} y={97}>
           elbows level with the keys
         </text>
-        <text className="pos-note" x={150} y={176}>
+        <text className="pos-note" x={150} y={179}>
           feet flat
         </text>
-        <text className="pos-note" x={252} y={26}>
+        <text className="pos-note" x={254} y={72}>
           shoulders down
         </text>
       </svg>
