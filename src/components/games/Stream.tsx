@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { rangeFor } from '../../lib/keyboard'
 import { parsePitch } from '../../lib/pitch'
 import {
+  BOARD,
   clefsOf,
   loadBests,
-  midisOf,
   randomTarget,
   recordBest,
+  sameNote,
   type Clef,
   type Level,
   type Target,
@@ -79,11 +79,8 @@ export function Stream({ level, pressed, onPressKey, register }: ModeProps) {
   const raf = useRef(0)
 
   const clefs = useMemo(() => clefsOf(level), [level])
-  const range = useMemo(() => rangeFor(midisOf(level)), [level])
-  const focus = useMemo(() => {
-    const m = midisOf(level)
-    return [Math.min(...m), Math.max(...m)]
-  }, [level])
+  // On a narrow screen, keep the board on the octave the next notes sit in.
+  const focus = useMemo(() => [60, 71], [])
 
   const ensureAhead = useCallback(
     (g: Game, until: number) => {
@@ -151,7 +148,7 @@ export function Stream({ level, pressed, onPressKey, register }: ModeProps) {
     const n = g.notes.find((x) => x.state === 'pending' && t >= x.at - x.window)
     if (!n) return
     g.judged = Math.max(g.judged, n.id + 1)
-    if (midi === n.target.midi) {
+    if (sameNote(midi, n.target.midi)) {
       const d = t - n.at
       n.state = 'hit'
       n.grade = Math.abs(d) < 0.12 ? 'on' : d < 0 ? 'early' : 'late'
@@ -191,7 +188,7 @@ export function Stream({ level, pressed, onPressKey, register }: ModeProps) {
 
         {phase === 'ready' && (
           <div className="game-overlay">
-            <p>Notes slide toward the red line. Play each one as it crosses. The pace rises every eight notes; three misses end the run.</p>
+            <p>Notes slide toward the red line. Play each one as it crosses, in any octave. The pace rises every eight notes; three misses end the run.</p>
             <button className="btn btn-primary" onClick={start}>
               Start
             </button>
@@ -215,7 +212,7 @@ export function Stream({ level, pressed, onPressKey, register }: ModeProps) {
           </div>
         )}
       </div>
-      <Piano range={range} focus={focus} pressed={pressed} onPress={press} label="Keyboard" />
+      <Piano range={BOARD} focus={focus} pressed={pressed} onPress={press} label="Keyboard" />
     </>
   )
 }

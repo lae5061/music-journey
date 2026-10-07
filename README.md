@@ -37,16 +37,18 @@ that they clicked Next.
 ## Games
 
 Beside the course, a Games tab holds drills for the skills that only come with
-repetition. The first is sight reading, in three modes over one set of eight levels
-(treble five-finger range up to the grand staff with accidentals):
+repetition. The first is sight reading, in three modes over one set of seven levels
+(the treble staff up to the grand staff with accidentals):
 
 - **Flash** — one note on the staff; play it on the keyboard before a bar drains. A wrong
-  or slow answer lights the right key and waits for it. Scores the streak.
+  or slow answer lights the right keys and waits. Scores the streak.
 - **Stream** — notes slide toward a line; play each as it crosses. The pace rises every
   eight notes and three misses end the run. Scores points, with a bonus for timing.
 - **Line** — a generated four-bar melody, a count-in, then play it through to a click.
   Afterwards every note is marked right, wrong (and what was played), early or late.
 
+All three ask for the note's name rather than its octave — any C answers a written C —
+so the board is the same three octaves at every level and a typed letter always lands.
 Best scores are kept per level and mode in `localStorage`.
 
 ## How it is put together

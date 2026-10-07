@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { rangeFor } from '../../lib/keyboard'
-import { noteName } from '../../lib/notes'
-import { loadBests, midisOf, randomTarget, recordBest, targetSpec } from '../../lib/sightReading'
+import { pitchClass } from '../../lib/notes'
+import {
+  BOARD,
+  loadBests,
+  middleOctave,
+  randomTarget,
+  recordBest,
+  sameNameKeys,
+  sameNote,
+  targetSpec,
+} from '../../lib/sightReading'
 import { Piano } from '../Piano'
 import { Staff } from '../notation/Staff'
 import { Stat, type ModeProps } from './SightReading'
@@ -27,8 +35,8 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
   const shownAt = useRef(performance.now())
   const recent = useRef<ReturnType<typeof randomTarget>[]>([])
 
-  const range = useMemo(() => rangeFor(midisOf(level)), [level])
-  const hint = useMemo(() => (missed ? new Set([target.midi]) : undefined), [missed, target])
+  const hint = useMemo(() => (missed ? new Set(sameNameKeys(target.midi)) : undefined), [missed, target])
+  const focus = useMemo(() => [middleOctave(target.midi)], [target])
 
   const miss = useCallback((why: Outcome) => {
     setStreak(0)
@@ -63,7 +71,7 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
     onPressKey(midi)
     // Playing a key is as good as pressing Start.
     if (phase === 'ready') start()
-    if (midi !== target.midi) {
+    if (!sameNote(midi, target.midi)) {
       if (!missed) miss('wrong')
       return
     }
@@ -94,15 +102,15 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
   const average = answered ? (totalMs / answered / 1000).toFixed(1) : '–'
   const message =
     phase === 'ready'
-      ? `Play each note you see on the keyboard below. You have ${LIMIT_S} seconds a note.`
+      ? `Play each note you see on the keyboard below — any octave will do. You have ${LIMIT_S} seconds a note.`
       : outcome === 'right'
         ? `Yes — that was ${lastTarget.pitch}.`
         : outcome === 'recovered'
           ? `That was ${lastTarget.pitch}. Here is the next one.`
         : outcome === 'wrong'
-          ? `Not that one. This is ${target.pitch}: play the lit key to go on, or skip it.`
+          ? `Not that one. This is ${target.pitch}: play a lit key to go on, or skip it.`
           : outcome === 'late'
-            ? `Too slow. This is ${target.pitch}: play the lit key to go on, or skip it.`
+            ? `Too slow. This is ${target.pitch}: play a lit key to go on, or skip it.`
             : 'Play the note you see.'
 
   return (
@@ -150,12 +158,12 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
         </div>
       </div>
       <Piano
-        range={range}
-        focus={[target.midi]}
+        range={BOARD}
+        focus={focus}
         highlight={hint}
         pressed={pressed}
         onPress={press}
-        label={`Keyboard — play ${noteName(target.midi)}`}
+        label={`Keyboard — play ${pitchClass(target.midi)}`}
       />
     </>
   )

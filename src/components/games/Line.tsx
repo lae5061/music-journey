@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { StaffNote, StaffSpec } from '../../data/types'
 import { playClicks, type Playback } from '../../lib/audio'
-import { rangeFor } from '../../lib/keyboard'
 import { spell } from '../../lib/music'
 import { parsePitch } from '../../lib/pitch'
 import {
+  BOARD,
   LINE_BARS,
   loadBests,
   makeMelody,
+  middleOctave,
   onsetsOf,
   recordBest,
+  sameNote,
 } from '../../lib/sightReading'
 import { Piano } from '../Piano'
 import { Staff } from '../notation/Staff'
@@ -56,7 +58,7 @@ export function Line({ level, pressed, onPressKey, register }: ModeProps) {
   const beatS = 60 / melody.tempo
   const totalBeats = LINE_BARS * BEATS_PER_BAR
   const midis = useMemo(() => melody.notes.map((n) => parsePitch(n.pitch!).midi), [melody])
-  const range = useMemo(() => rangeFor(midis), [midis])
+  const focus = useMemo(() => midis.map(middleOctave), [midis])
 
   const setPhaseBoth = (p: Phase) => {
     phaseRef.current = p
@@ -77,7 +79,7 @@ export function Line({ level, pressed, onPressKey, register }: ModeProps) {
     const graded = melody.notes.map((_, i): Mark => {
       const p = presses.current[i]
       if (!p) return { state: 'missed' }
-      const right = p.midi === midis[i]
+      const right = sameNote(p.midi, midis[i])
       const d = p.at - onsets[i] * beatS
       const timing = d > TIMING_SLACK * beatS ? 'late' : d < -TIMING_SLACK * beatS ? 'early' : 'on'
       return { state: right ? 'right' : 'wrong', timing, played: p.midi }
@@ -167,7 +169,7 @@ export function Line({ level, pressed, onPressKey, register }: ModeProps) {
               {lineNo === 1 ? 'Start' : 'Play this line'}
             </button>
             <span className="game-hint">
-              Four beats of count-in, then play the line to the click. {melody.tempo} a minute.
+              Four beats of count-in, then play the line to the click, in any octave. {melody.tempo} a minute.
             </span>
           </div>
         )}
@@ -210,7 +212,7 @@ export function Line({ level, pressed, onPressKey, register }: ModeProps) {
           </div>
         )}
       </div>
-      <Piano range={range} focus={midis} pressed={pressed} onPress={press} label="Keyboard" />
+      <Piano range={BOARD} focus={focus} pressed={pressed} onPress={press} label="Keyboard" />
     </>
   )
 }

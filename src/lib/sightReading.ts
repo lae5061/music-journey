@@ -1,4 +1,5 @@
 import type { NoteValue, StaffNote, StaffSpec } from '../data/types'
+import type { Range } from './keyboard'
 import { parsePitch } from './pitch'
 
 /**
@@ -17,6 +18,24 @@ export const MODES: { id: Mode; title: string; hook: string }[] = [
 
 export const isMode = (text: string): text is Mode => MODES.some((m) => m.id === text)
 
+/**
+ * The games ask for a note's name, not its octave: any C answers a written C. So the
+ * board is the same three octaves whatever the level, and a typed letter always lands.
+ */
+export const BOARD: Range = { lowest: 48, highest: 84 }
+
+export const sameNote = (a: number, b: number) => a % 12 === b % 12
+
+/** Every key on the board with this note's name. */
+export function sameNameKeys(midi: number): number[] {
+  const out: number[] = []
+  for (let m = BOARD.lowest; m <= BOARD.highest; m++) if (sameNote(m, midi)) out.push(m)
+  return out
+}
+
+/** The middle octave's copy of a note, to centre a narrow board on. */
+export const middleOctave = (midi: number) => 60 + (midi % 12)
+
 export interface Level {
   id: string
   title: string
@@ -30,14 +49,13 @@ export interface Level {
 }
 
 export const LEVELS: Level[] = [
-  { id: 'first-five', title: 'Treble, C4–G4', range: { treble: ['C4', 'G4'] }, accidentals: false, tempo: 40, values: [1, 2] },
-  { id: 'treble-octave', title: 'Treble, C4–C5', range: { treble: ['C4', 'C5'] }, accidentals: false, tempo: 44, values: [1, 2] },
-  { id: 'treble-ledger', title: 'Treble with ledger lines', range: { treble: ['A3', 'C6'] }, accidentals: false, tempo: 48, values: [1, 2, 0.5] },
-  { id: 'bass-five', title: 'Bass, F3–C4', range: { bass: ['F3', 'C4'] }, accidentals: false, tempo: 44, values: [1, 2] },
-  { id: 'bass-full', title: 'Bass, E2–C4', range: { bass: ['E2', 'C4'] }, accidentals: false, tempo: 48, values: [1, 2, 0.5] },
-  { id: 'grand', title: 'Grand staff', range: { treble: ['A3', 'C6'], bass: ['E2', 'C4'] }, accidentals: false, tempo: 52, values: [1, 2, 0.5] },
-  { id: 'accidentals', title: 'Sharps and flats', range: { treble: ['C4', 'A5'], bass: ['F2', 'C4'] }, accidentals: true, tempo: 52, values: [1, 2, 0.5] },
-  { id: 'everything', title: 'Everything', range: { treble: ['A3', 'C6'], bass: ['E2', 'C4'] }, accidentals: true, tempo: 56, values: [1, 2, 0.5] },
+  { id: 'treble', title: 'Treble staff', range: { treble: ['E4', 'F5'] }, accidentals: false, tempo: 40, values: [1, 2] },
+  { id: 'treble-ledger', title: 'Treble with ledger lines', range: { treble: ['A3', 'C6'] }, accidentals: false, tempo: 44, values: [1, 2, 0.5] },
+  { id: 'bass', title: 'Bass staff', range: { bass: ['G2', 'A3'] }, accidentals: false, tempo: 40, values: [1, 2] },
+  { id: 'bass-ledger', title: 'Bass with ledger lines', range: { bass: ['E2', 'C4'] }, accidentals: false, tempo: 44, values: [1, 2, 0.5] },
+  { id: 'grand', title: 'Grand staff', range: { treble: ['A3', 'C6'], bass: ['E2', 'C4'] }, accidentals: false, tempo: 48, values: [1, 2, 0.5] },
+  { id: 'accidentals', title: 'Sharps and flats', range: { treble: ['C4', 'A5'], bass: ['F2', 'C4'] }, accidentals: true, tempo: 48, values: [1, 2, 0.5] },
+  { id: 'everything', title: 'Everything', range: { treble: ['A3', 'C6'], bass: ['E2', 'C4'] }, accidentals: true, tempo: 52, values: [1, 2, 0.5] },
 ]
 
 export const getLevel = (id: string): Level => LEVELS.find((l) => l.id === id) ?? LEVELS[0]
