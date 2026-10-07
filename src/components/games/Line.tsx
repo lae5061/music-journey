@@ -36,7 +36,7 @@ const LINES_PER_SET = 5
 const TIMING_SLACK = 0.3
 
 /** A four-bar line to a click. Afterwards every note is marked. */
-export function Line({ level, pressed, onPressKey }: ModeProps) {
+export function Line({ level, pressed, onPressKey, register }: ModeProps) {
   const [melody, setMelody] = useState(() => makeMelody(level))
   const [phase, setPhase] = useState<Phase>('ready')
   const [beat, setBeat] = useState(0)
@@ -115,6 +115,8 @@ export function Line({ level, pressed, onPressKey }: ModeProps) {
     setPressCount(presses.current.length)
     if (presses.current.length === melody.notes.length) finish()
   }
+
+  useEffect(() => register(press))
 
   const nextLine = () => {
     clear()

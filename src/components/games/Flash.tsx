@@ -7,12 +7,14 @@ import { Staff } from '../notation/Staff'
 import { Stat, type ModeProps } from './SightReading'
 
 /** How long a note waits before it counts as missed. */
-const LIMIT_S = 6
+const LIMIT_S = 8
 
-type Outcome = 'none' | 'right' | 'wrong' | 'late'
+type Outcome = 'none' | 'right' | 'recovered' | 'wrong' | 'late'
+type Phase = 'ready' | 'playing'
 
 /** One note at a time. A wrong or slow answer lights the right key and waits for it. */
-export function Flash({ level, pressed, onPressKey }: ModeProps) {
+export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
+  const [phase, setPhase] = useState<Phase>('ready')
   const [target, setTarget] = useState(() => randomTarget(level))
   const [round, setRound] = useState(0)
   const [streak, setStreak] = useState(0)
@@ -35,13 +37,30 @@ export function Flash({ level, pressed, onPressKey }: ModeProps) {
 
   // The bar above the staff drains for this long; when it is empty the note is missed.
   useEffect(() => {
-    if (missed) return
+    if (phase !== 'playing' || missed) return
     const id = window.setTimeout(() => miss('late'), LIMIT_S * 1000)
     return () => window.clearTimeout(id)
-  }, [round, missed, miss])
+  }, [phase, round, missed, miss])
+
+  const advance = () => {
+    setLastTarget(target)
+    setTarget((t) => randomTarget(level, t))
+    setRound((r) => r + 1)
+    setMissed(false)
+    shownAt.current = performance.now()
+  }
+
+  const start = () => {
+    setPhase('playing')
+    setOutcome('none')
+    setRound((r) => r + 1)
+    shownAt.current = performance.now()
+  }
 
   const press = (midi: number) => {
     onPressKey(midi)
+    // Playing a key is as good as pressing Start.
+    if (phase === 'ready') start()
     if (midi !== target.midi) {
       if (!missed) miss('wrong')
       return
@@ -53,23 +72,36 @@ export function Flash({ level, pressed, onPressKey }: ModeProps) {
       setAnswered((n) => n + 1)
       setTotalMs((t) => t + (performance.now() - shownAt.current))
       setOutcome('right')
+    } else {
+      setOutcome('recovered')
     }
-    setLastTarget(target)
-    setTarget((t) => randomTarget(level, t))
-    setRound((r) => r + 1)
-    setMissed(false)
-    shownAt.current = performance.now()
+    advance()
   }
+
+  /** Sound the note being asked for, without it counting as an answer. */
+  const hear = () => onPressKey(target.midi)
+
+  const skip = () => {
+    setStreak(0)
+    setOutcome('none')
+    advance()
+  }
+
+  useEffect(() => register(press))
 
   const average = answered ? (totalMs / answered / 1000).toFixed(1) : '–'
   const message =
-    outcome === 'right'
-      ? `Yes — that was ${lastTarget.pitch}.`
-      : outcome === 'wrong'
-        ? `Not that one. This is ${target.pitch}; play it to go on.`
-        : outcome === 'late'
-          ? `Too slow. This is ${target.pitch}; play it to go on.`
-          : 'Play the note you see.'
+    phase === 'ready'
+      ? `Play each note you see on the keyboard below. You have ${LIMIT_S} seconds a note.`
+      : outcome === 'right'
+        ? `Yes — that was ${lastTarget.pitch}.`
+        : outcome === 'recovered'
+          ? `That was ${lastTarget.pitch}. Here is the next one.`
+        : outcome === 'wrong'
+          ? `Not that one. This is ${target.pitch}: play the lit key to go on, or skip it.`
+          : outcome === 'late'
+            ? `Too slow. This is ${target.pitch}: play the lit key to go on, or skip it.`
+            : 'Play the note you see.'
 
   return (
     <>
@@ -78,21 +110,42 @@ export function Flash({ level, pressed, onPressKey }: ModeProps) {
           <Stat label="Streak" value={String(streak)} accent />
           <Stat label="Best" value={String(best)} />
           <Stat label="Seconds a note" value={average} />
-          <Stat label="Read" value={String(answered)} />
+          <Stat label="Answered" value={String(answered)} />
         </div>
         <div className="game-timer" aria-hidden="true">
-          <div
-            key={round}
-            className={`game-timer-fill${missed ? ' is-paused' : ''}`}
-            style={{ animationDuration: `${LIMIT_S}s` }}
-          />
+          {phase === 'playing' && (
+            <div
+              key={round}
+              className={`game-timer-fill${missed ? ' is-paused' : ''}`}
+              style={{ animationDuration: `${LIMIT_S}s` }}
+            />
+          )}
         </div>
         <div className="game-staff game-staff--flash">
           <Staff spec={targetSpec(level, target)} scale={2.2} />
         </div>
-        <p className={`game-message${outcome === 'right' ? ' is-right' : missed ? ' is-wrong' : ''}`} aria-live="polite">
+        <p
+          className={`game-message${outcome === 'right' ? ' is-right' : missed ? ' is-wrong' : ''}`}
+          aria-live="polite"
+        >
           {message}
         </p>
+        <div className="game-line-controls">
+          {phase === 'ready' ? (
+            <button className="btn btn-primary" onClick={start}>
+              Start
+            </button>
+          ) : (
+            <>
+              <button className="btn btn-secondary" onClick={hear}>
+                Hear it
+              </button>
+              <button className="btn btn-secondary" onClick={skip}>
+                Skip
+              </button>
+            </>
+          )}
+        </div>
       </div>
       <Piano
         range={range}

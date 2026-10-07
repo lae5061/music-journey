@@ -69,7 +69,7 @@ const fresh = (): Game => ({
 })
 
 /** Notes scroll toward a line; play each as it crosses. Three misses end the run. */
-export function Stream({ level, pressed, onPressKey }: ModeProps) {
+export function Stream({ level, pressed, onPressKey, register }: ModeProps) {
   const [phase, setPhase] = useState<Phase>('ready')
   const [now, setNow] = useState(0)
   const [best, setBest] = useState(() => loadBests().stream[level.id] ?? 0)
@@ -166,6 +166,8 @@ export function Stream({ level, pressed, onPressKey }: ModeProps) {
       if (g.misses >= MAX_MISSES) end()
     }
   }
+
+  useEffect(() => register(press))
 
   const g = game.current
   const tempo = tempoAt(level, Math.max(0, g.judged - 1))

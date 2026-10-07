@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gameHref, gamesHref } from '../../lib/route'
 import {
   getLevel,
@@ -9,6 +9,7 @@ import {
   rememberLevel,
   type Mode,
 } from '../../lib/sightReading'
+import { typingHint, useTypingKeys } from '../../lib/useTypingKeys'
 import { Flash } from './Flash'
 import { Line } from './Line'
 import { Stream } from './Stream'
@@ -17,6 +18,8 @@ export interface ModeProps {
   level: ReturnType<typeof getLevel>
   pressed: ReadonlySet<number>
   onPressKey: (midi: number) => void
+  /** Hand the shell the mode's key handler, so typed letters reach it. */
+  register: (press: (midi: number) => void) => void
 }
 
 /** The sight-reading game: three modes over one set of levels. */
@@ -35,8 +38,19 @@ export function SightReading({
 
   useEffect(() => rememberLevel(level.id), [level])
 
+  // Typed letters go to whichever mode is showing.
+  const pressRef = useRef<(midi: number) => void>(() => {})
+  const octave = useTypingKeys((midi) => pressRef.current(midi))
+
   const current = MODES.find((m) => m.id === mode)!
-  const props: ModeProps = { level, pressed, onPressKey }
+  const props: ModeProps = {
+    level,
+    pressed,
+    onPressKey,
+    register: (press) => {
+      pressRef.current = press
+    },
+  }
 
   return (
     <main className="curriculum game">
@@ -78,6 +92,7 @@ export function SightReading({
       {mode === 'flash' && <Flash key={level.id} {...props} />}
       {mode === 'stream' && <Stream key={level.id} {...props} />}
       {mode === 'line' && <Line key={level.id} {...props} />}
+      <p className="game-keys">{typingHint(octave)}</p>
     </main>
   )
 }
