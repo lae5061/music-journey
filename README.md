@@ -47,7 +47,8 @@ repetition. The first is sight reading, in three modes over one set of seven lev
 - **Line** — a generated four-bar melody, a count-in, then play it through to a click.
   Afterwards every note is marked right, wrong (and what was played), early or late.
 
-All three ask for the note's name rather than its octave — any C answers a written C —
+A Lines · Spaces · Both switch narrows every mode to the notes on lines (ledger lines
+included), the notes in spaces, or all of them. All three ask for the note's name rather than its octave — any C answers a written C —
 so the board is the same three octaves at every level and a typed letter always lands.
 Best scores are kept per level and mode in `localStorage`.
 

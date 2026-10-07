@@ -72,7 +72,7 @@ const fresh = (): Game => ({
 })
 
 /** Notes scroll toward a line; play each as it crosses. Three misses end the run. */
-export function Stream({ level, pressed, onPressKey, register }: ModeProps) {
+export function Stream({ level, pressed, onPressKey, placement, register }: ModeProps) {
   const [phase, setPhase] = useState<Phase>('ready')
   const [now, setNow] = useState(0)
   const [best, setBest] = useState(() => loadBests().stream[level.id] ?? 0)
@@ -88,14 +88,14 @@ export function Stream({ level, pressed, onPressKey, register }: ModeProps) {
         const i = g.count
         const beat = 60 / tempoAt(level, i)
         const at = i === 0 ? LEAD_S : g.lastAt + beat
-        const target = randomTarget(level, g.recent)
+        const target = randomTarget(level, g.recent, placement)
         g.notes.push({ id: i, target, at, window: Math.min(0.55, beat * 0.5), state: 'pending' })
         g.count = i + 1
         g.lastAt = at
         g.recent = [...g.recent, target].slice(-6)
       }
     },
-    [level],
+    [level, placement],
   )
 
   const end = useCallback(() => {

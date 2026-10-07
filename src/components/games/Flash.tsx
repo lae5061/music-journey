@@ -24,9 +24,9 @@ type Outcome = 'none' | 'right' | 'recovered' | 'wrong' | 'late'
 type Phase = 'ready' | 'playing'
 
 /** One note at a time. A wrong or slow answer lights the right key and waits for it. */
-export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
+export function Flash({ level, pressed, onPressKey, placement, register }: ModeProps) {
   const [phase, setPhase] = useState<Phase>('ready')
-  const [target, setTarget] = useState(() => randomTarget(level))
+  const [target, setTarget] = useState(() => randomTarget(level, [], placement))
   const [round, setRound] = useState(0)
   const [streak, setStreak] = useState(0)
   const [best, setBest] = useState(() => loadBests().flash[level.id] ?? 0)
@@ -57,7 +57,7 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
   const advance = () => {
     setLastTarget(target)
     recent.current = [...recent.current, target].slice(-6)
-    setTarget(randomTarget(level, recent.current))
+    setTarget(randomTarget(level, recent.current, placement))
     setRound((r) => r + 1)
     setMissed(false)
     shownAt.current = performance.now()

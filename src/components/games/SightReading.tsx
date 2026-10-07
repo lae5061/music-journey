@@ -6,8 +6,10 @@ import {
   LEVELS,
   loadBests,
   MODES,
-  rememberLevel,
+  PLACEMENTS,
+  rememberChoice,
   type Mode,
+  type Placement,
 } from '../../lib/sightReading'
 import { typingHint, useTypingKeys } from '../../lib/useTypingKeys'
 import { Flash } from './Flash'
@@ -18,6 +20,7 @@ export interface ModeProps {
   level: ReturnType<typeof getLevel>
   pressed: ReadonlySet<number>
   onPressKey: (midi: number) => void
+  placement: Placement
   /** Hand the shell the mode's key handler, so typed letters reach it. */
   register: (press: (midi: number) => void) => void
 }
@@ -34,9 +37,10 @@ export function SightReading({
 }) {
   const mode: Mode = part && isMode(part) ? part : 'flash'
   const [levelId, setLevelId] = useState(() => loadBests().lastLevel ?? LEVELS[0].id)
+  const [placement, setPlacement] = useState<Placement>(() => loadBests().lastPlacement ?? 'both')
   const level = getLevel(levelId)
 
-  useEffect(() => rememberLevel(level.id), [level])
+  useEffect(() => rememberChoice(level.id, placement), [level, placement])
 
   // Typed letters go to whichever mode is showing.
   const pressRef = useRef<(midi: number) => void>(() => {})
@@ -47,6 +51,7 @@ export function SightReading({
     level,
     pressed,
     onPressKey,
+    placement,
     register: (press) => {
       pressRef.current = press
     },
@@ -72,6 +77,22 @@ export function SightReading({
             </a>
           ))}
         </nav>
+        <div className="game-level" role="group" aria-label="Which notes">
+          <span className="kicker">Notes</span>
+          <div className="game-segmented">
+            {PLACEMENTS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className="game-segment"
+                aria-pressed={p.id === placement}
+                onClick={() => setPlacement(p.id)}
+              >
+                {p.title}
+              </button>
+            ))}
+          </div>
+        </div>
         <label className="game-level">
           <span className="kicker">Level</span>
           <select
@@ -88,10 +109,10 @@ export function SightReading({
         </label>
       </div>
 
-      {/* Keyed by level so changing it starts the mode over. */}
-      {mode === 'flash' && <Flash key={level.id} {...props} />}
-      {mode === 'stream' && <Stream key={level.id} {...props} />}
-      {mode === 'line' && <Line key={level.id} {...props} />}
+      {/* Keyed by the choices so changing one starts the mode over. */}
+      {mode === 'flash' && <Flash key={`${level.id}-${placement}`} {...props} />}
+      {mode === 'stream' && <Stream key={`${level.id}-${placement}`} {...props} />}
+      {mode === 'line' && <Line key={`${level.id}-${placement}`} {...props} />}
       <p className="game-keys">{typingHint(octave)}</p>
     </main>
   )
