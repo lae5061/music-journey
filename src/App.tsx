@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { SiteFooter, SiteHeader } from './components/Chrome'
 import { Curriculum } from './components/Curriculum'
+import { Games } from './components/Games'
 import { Landing } from './components/Landing'
 import { Lesson } from './components/Lesson'
 import {
@@ -59,7 +60,9 @@ export default function App() {
         ? 'Tonic — music theory from the keyboard'
         : route.screen === 'curriculum'
           ? 'Curriculum · Tonic'
-          : `${lessonLabel(route.at)} ${getLesson(route.at).title} · Tonic`
+          : route.screen === 'games'
+            ? 'Games · Tonic'
+            : `${lessonLabel(route.at)} ${getLesson(route.at).title} · Tonic`
   }, [route])
 
   const openLesson = useCallback((ref: LessonRef) => navigate(lessonHref(ref)), [navigate])
@@ -108,6 +111,8 @@ export default function App() {
       )}
 
       {route.screen === 'curriculum' && <Curriculum current={at} completed={completed} />}
+
+      {route.screen === 'games' && <Games game={route.game} />}
 
       {here && (
         <Lesson

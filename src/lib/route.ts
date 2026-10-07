@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getLesson, isValidRef, lessonLabel, type LessonRef } from '../data/course'
+import { isGameId, type GameId } from '../data/games'
 
 /**
  * Screens are addressed by the URL hash, so a lesson can be bookmarked and the back
@@ -10,6 +11,8 @@ import { getLesson, isValidRef, lessonLabel, type LessonRef } from '../data/cour
  *   #/lesson              wherever the learner got to (resolved against saved progress)
  *   #/lesson/2.03         lesson 2.03 from its first step
  *   #/lesson/2.03/4       lesson 2.03, step 4
+ *   #/games               the practice games
+ *   #/games/sight-reading one game
  *
  * Hash routes rather than paths because the app is static files with no server to
  * rewrite /lesson/2.03 back to index.html.
@@ -18,6 +21,7 @@ export type Route =
   | { screen: 'landing' }
   | { screen: 'curriculum' }
   | { screen: 'lesson'; at: LessonRef; step: number }
+  | { screen: 'games'; game: GameId | null }
 
 export type Screen = Route['screen']
 
@@ -31,6 +35,8 @@ export const landingHref = '#/'
 export const curriculumHref = '#/curriculum'
 /** "#/lesson" — the lesson in progress, whatever it is. */
 export const resumeHref = '#/lesson'
+export const gamesHref = '#/games'
+export const gameHref = (game: GameId) => `#/games/${game}`
 
 export const lessonHref = (ref: LessonRef, step = 0) =>
   step > 0 ? `#/lesson/${lessonLabel(ref)}/${step + 1}` : `#/lesson/${lessonLabel(ref)}`
@@ -43,6 +49,8 @@ export function formatRoute(route: Route): string {
       return curriculumHref
     case 'lesson':
       return lessonHref(route.at, route.step)
+    case 'games':
+      return route.game ? gameHref(route.game) : gamesHref
   }
 }
 
@@ -65,6 +73,10 @@ export function parseRoute(hash: string, saved: Position): Route {
   if (path === 'curriculum') return { screen: 'curriculum' }
 
   const [head, address, stepText, ...rest] = path.split('/')
+  if (head === 'games' && stepText === undefined) {
+    if (address === undefined) return { screen: 'games', game: null }
+    return isGameId(address) ? { screen: 'games', game: address } : { screen: 'games', game: null }
+  }
   if (head !== 'lesson' || rest.length > 0) return { screen: 'landing' }
   if (address === undefined) return { screen: 'lesson', ...saved }
 

@@ -1,5 +1,5 @@
 import { TOTAL_LESSONS, UNITS } from '../data/course'
-import { curriculumHref, landingHref, resumeHref, type Screen } from '../lib/route'
+import { curriculumHref, gamesHref, landingHref, resumeHref, type Screen } from '../lib/route'
 
 interface HeaderProps {
   screen: Screen
@@ -21,6 +21,7 @@ export function SiteHeader({ screen }: HeaderProps) {
       {link('landing', landingHref, 'Overview')}
       {link('curriculum', curriculumHref, 'Curriculum')}
       {link('lesson', resumeHref, 'Lesson')}
+      {link('games', gamesHref, 'Games')}
     </header>
   )
 }
