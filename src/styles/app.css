@@ -559,6 +559,8 @@ button { font-family: inherit; white-space: nowrap; }
 .game-stat.is-accent .game-stat-value { color: var(--color-accent); }
 .game-stat-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-neutral-700); }
 
+.game-round { display: flex; flex-direction: column; gap: 6px; }
+.game-round .progress-seg.is-missed { background: var(--color-neutral-500); }
 .game-timer { height: 4px; background: var(--color-neutral-300); }
 .game-timer-fill { height: 100%; background: var(--color-accent); animation: game-drain linear forwards; }
 .game-timer-fill.is-paused { animation-play-state: paused; }

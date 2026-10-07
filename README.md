@@ -40,8 +40,9 @@ Beside the course, a Games tab holds drills for the skills that only come with
 repetition. The first is sight reading, in three modes over one set of seven levels
 (the treble staff up to the grand staff with accidentals):
 
-- **Flash** — one note on the staff; play it on the keyboard before a bar drains. A wrong
-  or slow answer lights the right keys and waits. Scores the streak.
+- **Flash** — twenty notes, one at a time; play each on the keyboard before a bar drains.
+  A wrong or slow answer lights the right keys and waits, and the note counts as missed.
+  Scores notes right out of twenty.
 - **Stream** — notes slide toward a line; play each as it crosses. The pace rises every
   eight notes and three misses end the run. Scores points, with a bonus for timing.
 - **Line** — a generated four-bar melody, a count-in, then play it through to a click.
