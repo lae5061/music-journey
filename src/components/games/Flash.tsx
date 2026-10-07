@@ -25,6 +25,7 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
   const [outcome, setOutcome] = useState<Outcome>('none')
   const [lastTarget, setLastTarget] = useState(target)
   const shownAt = useRef(performance.now())
+  const recent = useRef<ReturnType<typeof randomTarget>[]>([])
 
   const range = useMemo(() => rangeFor(midisOf(level)), [level])
   const hint = useMemo(() => (missed ? new Set([target.midi]) : undefined), [missed, target])
@@ -44,7 +45,8 @@ export function Flash({ level, pressed, onPressKey, register }: ModeProps) {
 
   const advance = () => {
     setLastTarget(target)
-    setTarget((t) => randomTarget(level, t))
+    recent.current = [...recent.current, target].slice(-6)
+    setTarget(randomTarget(level, recent.current))
     setRound((r) => r + 1)
     setMissed(false)
     shownAt.current = performance.now()

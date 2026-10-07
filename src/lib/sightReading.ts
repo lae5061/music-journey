@@ -74,15 +74,20 @@ export interface Target {
 
 const pick = <T,>(items: T[]): T => items[Math.floor(Math.random() * items.length)]
 
-/** One note to ask for, never the same written note twice running. */
-export function randomTarget(level: Level, avoid?: Target): Target {
-  for (let tries = 0; tries < 20; tries++) {
+/** How many of the notes just asked a new one steers clear of, when the level has room. */
+const RECENT = 3
+
+/** One note to ask for, not one of the last few — so a five-note level does not seesaw. */
+export function randomTarget(level: Level, recent: Target[] = []): Target {
+  const size = clefsOf(level).reduce((n, clef) => n + naturalsBetween(...level.range[clef]!).length, 0)
+  const avoid = recent.slice(-Math.min(RECENT, Math.max(1, size - 2)))
+  for (let tries = 0; tries < 30; tries++) {
     const clef = pick(clefsOf(level))
     const [low, high] = level.range[clef]!
     const naturals = naturalsBetween(low, high)
     const pool = level.accidentals && Math.random() < 0.4 ? alteredFrom(naturals) : naturals
     const pitch = pick(pool)
-    if (avoid && avoid.clef === clef && avoid.pitch === pitch) continue
+    if (avoid.some((a) => a.clef === clef && a.pitch === pitch)) continue
     return { clef, pitch, midi: parsePitch(pitch).midi }
   }
   const clef = clefsOf(level)[0]

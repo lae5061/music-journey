@@ -47,7 +47,7 @@ interface Game {
   /** How many notes have been generated so far. */
   count: number
   lastAt: number
-  last?: Target
+  recent: Target[]
   score: number
   streak: number
   misses: number
@@ -60,6 +60,7 @@ const fresh = (): Game => ({
   notes: [],
   count: 0,
   lastAt: 0,
+  recent: [],
   score: 0,
   streak: 0,
   misses: 0,
@@ -90,11 +91,11 @@ export function Stream({ level, pressed, onPressKey, register }: ModeProps) {
         const i = g.count
         const beat = 60 / tempoAt(level, i)
         const at = i === 0 ? LEAD_S : g.lastAt + beat
-        const target = randomTarget(level, g.last)
+        const target = randomTarget(level, g.recent)
         g.notes.push({ id: i, target, at, window: Math.min(0.55, beat * 0.5), state: 'pending' })
         g.count = i + 1
         g.lastAt = at
-        g.last = target
+        g.recent = [...g.recent, target].slice(-6)
       }
     },
     [level],
