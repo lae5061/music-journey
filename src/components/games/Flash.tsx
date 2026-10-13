@@ -94,8 +94,8 @@ export function Flash({ level, pressed, onPressKey, placement, register }: ModeP
     shownAt.current = performance.now()
   }
 
-  const press = (midi: number) => {
-    onPressKey(midi)
+  const press = (midi: number, silent = false) => {
+    if (!silent) onPressKey(midi)
     if (phase === 'over') return
     // Playing a key is as good as pressing Start.
     if (phase === 'ready') start()

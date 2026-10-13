@@ -53,6 +53,15 @@ included), the notes in spaces, or all of them. All three ask for the note's nam
 so the board is the same three octaves at every level and a typed letter always lands.
 Best scores are kept per level and mode in `localStorage`.
 
+## Playing it from a real keyboard
+
+The computer keyboard plays notes by letter: C D E F G A B, Shift for a sharp, Z and X
+for the octave. A MIDI keyboard is optional: a *Connect a MIDI keyboard* line sits under
+every playable board, nothing is requested until it is pressed, and once connected the
+keyboard lights the keys and answers the games. The app's own sound stays off for MIDI
+notes unless asked for, since most keyboards have a voice of their own. Web MIDI exists
+in Chrome, Edge and Firefox; Safari, on Mac and iPhone, has none, and the line says so.
+
 ## How it is put together
 
 Everything sounded — a single note, a scale, an Alberti bass, three-against-two, a swung

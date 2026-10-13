@@ -140,8 +140,8 @@ export function Stream({ level, pressed, onPressKey, placement, register }: Mode
     raf.current = requestAnimationFrame(tick)
   }
 
-  const press = (midi: number) => {
-    onPressKey(midi)
+  const press = (midi: number, silent = false) => {
+    if (!silent) onPressKey(midi)
     if (phase !== 'running') return
     const g = game.current
     const t = (performance.now() - g.t0) / 1000

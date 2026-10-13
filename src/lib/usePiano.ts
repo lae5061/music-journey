@@ -59,6 +59,15 @@ export function usePiano(timbre: Timbre = TIMBRE) {
     [timbre, setKey],
   )
 
+  /** Light a key for as long as it is held, without sounding it — a MIDI keyboard with its own voice. */
+  const holdKey = useCallback(
+    (midi: number, on: boolean) => {
+      setKey(midi, on)
+      if (on) setLastPlayed(`Played ${noteName(midi)}`)
+    },
+    [setKey],
+  )
+
   /** Sound a whole phrase, replacing anything already running. */
   const play = useCallback(
     (phrase: Phrase, label?: string) => {
@@ -76,7 +85,7 @@ export function usePiano(timbre: Timbre = TIMBRE) {
     [timbre, setKey, stop],
   )
 
-  return { pressed, lastPlayed, playing, pressKey, play, stop }
+  return { pressed, lastPlayed, playing, pressKey, holdKey, play, stop }
 }
 
 /** "Played C – E – G" for a chord, "C → D → E" for a line. */

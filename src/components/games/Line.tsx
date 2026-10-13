@@ -112,8 +112,8 @@ export function Line({ level, pressed, onPressKey, placement, register }: ModePr
     timers.current.push(window.setTimeout(finish, (COUNT_IN + totalBeats + 1) * beatS * 1000))
   }
 
-  const press = (midi: number) => {
-    onPressKey(midi)
+  const press = (midi: number, silent = false) => {
+    if (!silent) onPressKey(midi)
     if (phaseRef.current !== 'playing') return
     if (presses.current.length >= melody.notes.length) return
     presses.current.push({ midi, at: (performance.now() - t0.current) / 1000 })

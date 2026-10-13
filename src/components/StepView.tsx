@@ -4,6 +4,7 @@ import { rangeFor } from '../lib/keyboard'
 import { phraseNotes, type Phrase } from '../lib/music'
 import { ChordChart } from './ChordChart'
 import { Diagram } from './Diagram'
+import { MidiControl } from './MidiControl'
 import { Piano } from './Piano'
 import { Quiz } from './Quiz'
 import { Staff } from './notation/Staff'
@@ -86,6 +87,7 @@ export function StepView({
             onPress={onPressKey}
             label="Playable keyboard"
           />
+          <MidiControl />
         </div>
       )}
 

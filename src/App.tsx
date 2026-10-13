@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SiteFooter, SiteHeader } from './components/Chrome'
 import { Curriculum } from './components/Curriculum'
 import { Games } from './components/Games'
 import { Landing } from './components/Landing'
 import { Lesson } from './components/Lesson'
+import { MidiContext } from './components/MidiControl'
 import {
   FIRST_LESSON,
   getLesson,
@@ -12,6 +13,7 @@ import {
   nextLesson,
   type LessonRef,
 } from './data/course'
+import { useMidi } from './lib/useMidi'
 import { useProgress } from './lib/progress'
 import { curriculumHref, formatRoute, lessonHref, parseRoute, resumeHref, useHash } from './lib/route'
 import { usePiano } from './lib/usePiano'
@@ -20,7 +22,24 @@ export default function App() {
   const { place, setPlace } = useProgress()
   const { completed, at, step } = place
   const { hash, navigate, replace } = useHash()
-  const { pressed, lastPlayed, playing, pressKey, play, stop } = usePiano()
+  const { pressed, lastPlayed, playing, pressKey, holdKey, play, stop } = usePiano()
+
+  // A MIDI keyboard, if connected: lights the keys, and feeds whichever game is showing.
+  const [midiSound, setMidiSound] = useState(false)
+  const gameInput = useRef<((midi: number) => void) | null>(null)
+  const midi = useMidi((note) => {
+    if (note.on) {
+      if (midiSound) pressKey(note.midi)
+      else holdKey(note.midi, true)
+      gameInput.current?.(note.midi)
+    } else if (!midiSound) {
+      holdKey(note.midi, false)
+    }
+  })
+  const midiState = useMemo(
+    () => ({ ...midi, sound: midiSound, setSound: setMidiSound }),
+    [midi, midiSound],
+  )
 
   // The URL decides what is on screen; saved progress only fills in a bare "#/lesson".
   const route = useMemo(() => parseRoute(hash, { at, step }), [hash, at, step])
@@ -94,6 +113,7 @@ export default function App() {
   }, [setPlace])
 
   return (
+    <MidiContext.Provider value={midiState}>
     <div className="app">
       <SiteHeader screen={route.screen} />
 
@@ -113,7 +133,15 @@ export default function App() {
       {route.screen === 'curriculum' && <Curriculum current={at} completed={completed} />}
 
       {route.screen === 'games' && (
-        <Games game={route.game} part={route.part} pressed={pressed} onPressKey={pressKey} />
+        <Games
+          game={route.game}
+          part={route.part}
+          pressed={pressed}
+          onPressKey={pressKey}
+          onRegisterInput={(fn) => {
+            gameInput.current = fn
+          }}
+        />
       )}
 
       {here && (
@@ -136,5 +164,6 @@ export default function App() {
 
       <SiteFooter />
     </div>
+    </MidiContext.Provider>
   )
 }

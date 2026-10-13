@@ -12,6 +12,7 @@ import {
   type Placement,
 } from '../../lib/sightReading'
 import { typingHint, useTypingKeys } from '../../lib/useTypingKeys'
+import { MidiControl } from '../MidiControl'
 import { Flash } from './Flash'
 import { Line } from './Line'
 import { Stream } from './Stream'
@@ -21,8 +22,11 @@ export interface ModeProps {
   pressed: ReadonlySet<number>
   onPressKey: (midi: number) => void
   placement: Placement
-  /** Hand the shell the mode's key handler, so typed letters reach it. */
-  register: (press: (midi: number) => void) => void
+  /**
+   * Hand the shell the mode's key handler, so typed letters and MIDI notes reach it.
+   * `silent` means the key has already sounded (or should not), so only judge it.
+   */
+  register: (press: (midi: number, silent?: boolean) => void) => void
 }
 
 /** The sight-reading game: three modes over one set of levels. */
@@ -30,10 +34,12 @@ export function SightReading({
   part,
   pressed,
   onPressKey,
+  onRegisterInput,
 }: {
   part: string | null
   pressed: ReadonlySet<number>
   onPressKey: (midi: number) => void
+  onRegisterInput: (fn: ((midi: number) => void) | null) => void
 }) {
   const mode: Mode = part && isMode(part) ? part : 'flash'
   const [levelId, setLevelId] = useState(() => loadBests().lastLevel ?? LEVELS[0].id)
@@ -42,9 +48,14 @@ export function SightReading({
 
   useEffect(() => rememberChoice(level.id, placement), [level, placement])
 
-  // Typed letters go to whichever mode is showing.
-  const pressRef = useRef<(midi: number) => void>(() => {})
+  // Typed letters and MIDI notes go to whichever mode is showing.
+  const pressRef = useRef<(midi: number, silent?: boolean) => void>(() => {})
   const octave = useTypingKeys((midi) => pressRef.current(midi))
+  useEffect(() => {
+    // A MIDI note has already lit (and maybe sounded) its key in App; the mode only judges it.
+    onRegisterInput((midi) => pressRef.current(midi, true))
+    return () => onRegisterInput(null)
+  }, [onRegisterInput])
 
   const current = MODES.find((m) => m.id === mode)!
   const props: ModeProps = {
@@ -114,6 +125,7 @@ export function SightReading({
       {mode === 'stream' && <Stream key={`${level.id}-${placement}`} {...props} />}
       {mode === 'line' && <Line key={`${level.id}-${placement}`} {...props} />}
       <p className="game-keys">{typingHint(octave)}</p>
+      <MidiControl />
     </main>
   )
 }

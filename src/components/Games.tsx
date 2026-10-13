@@ -7,12 +7,21 @@ interface GamesProps {
   part: string | null
   pressed: ReadonlySet<number>
   onPressKey: (midi: number) => void
+  /** Where a connected MIDI keyboard's notes should go while a game is showing. */
+  onRegisterInput: (fn: ((midi: number) => void) | null) => void
 }
 
 /** The games index: one card per drill. */
-export function Games({ game, part, pressed, onPressKey }: GamesProps) {
+export function Games({ game, part, pressed, onPressKey, onRegisterInput }: GamesProps) {
   if (game === 'sight-reading') {
-    return <SightReading part={part} pressed={pressed} onPressKey={onPressKey} />
+    return (
+      <SightReading
+        part={part}
+        pressed={pressed}
+        onPressKey={onPressKey}
+        onRegisterInput={onRegisterInput}
+      />
+    )
   }
 
   return (
