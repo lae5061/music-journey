@@ -17,9 +17,12 @@ npm run build    # typecheck + production build into dist/
 npm run preview  # serve the built app
 ```
 
-Pushing to `main` builds and publishes the site to GitHub Pages through
-`.github/workflows/deploy.yml`, which turns Pages on for the repo the first time it runs.
-Hash routes mean every lesson URL works there without server rewrites.
+Pushing to `main` deploys twice: to Netlify at https://music-journey-633.netlify.app
+through `.github/workflows/netlify.yml` (pull requests get a preview deploy), and to
+GitHub Pages through `.github/workflows/deploy.yml`. The Netlify workflow needs two
+secrets in a `netlify` environment on the repo, `NETLIFY_AUTH_TOKEN` and
+`NETLIFY_SITE_ID`; `netlify.toml` and `.netlify/state.json` carry the site's settings
+and id. Hash routes mean every lesson URL works on either host without server rewrites.
 
 ## The course
 

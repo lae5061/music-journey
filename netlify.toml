@@ -1,0 +1,10 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+# Hash routes need no rewrites, but serving index.html for any path keeps a pasted
+# link without the hash from 404ing.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
