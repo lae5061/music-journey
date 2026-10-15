@@ -3,3 +3,7 @@ dist
 *.tsbuildinfo
 *.local
 .DS_Store
+
+# Netlify CLI scratch; only the site link is kept
+.netlify/*
+!.netlify/state.json
