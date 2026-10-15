@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="./modernist.css">
+<style>
+body{margin:0;background:#f3f2f2;color:#201e1d;font-family:"Archivo",system-ui,sans-serif}
+a{color:#ec3013}a:hover{color:#dd2b0f}
+button{font-family:inherit;white-space:nowrap}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header class="nav" style="position:sticky;top:0;background:#f3f2f2;z-index:5">
+    <a class="nav-brand" href="#" onClick="{{ goLanding }}" style="display:flex;align-items:center;gap:10px"><span style="display:inline-block;width:14px;height:14px;background:#ec3013"></span>Tonic</a>
+    <a href="#" onClick="{{ goLanding }}" aria-current="{{ curLanding }}">Overview</a>
+    <a href="#" onClick="{{ goCurriculum }}" aria-current="{{ curCurriculum }}">Curriculum</a>
+    <a href="#" onClick="{{ goLessonNav }}" aria-current="{{ curLesson }}">Lesson</a>
+  </header>
+
+  <sc-if value="{{ isLanding }}" hint-placeholder-val="{{ true }}">
+    <main style="flex:1">
+      <sc-if value="{{ heroPoster }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="Landing hero (poster)" style="background:#ec3013;color:#f3f2f2;padding:64px 24px 56px">
+          <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;align-items:end">
+            <h1 style="font-size:clamp(44px,7vw,96px);line-height:.98;letter-spacing:-.03em;margin:0;grid-column:1/-1">Music theory,<br>one key at a time.</h1>
+            <p style="font-size:18px;line-height:1.5;margin:0;max-width:52ch">A structured course for adult beginners. Every concept is introduced on the piano keyboard first — you play it, then you name it.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onClick="{{ startLesson0 }}" style="background:#201e1d;color:#f3f2f2">Begin the course</button><button class="btn" onClick="{{ goCurriculum }}" style="border-color:#f3f2f2;color:#f3f2f2">See the curriculum</button></div>
+          </div>
+        </section>
+      </sc-if>
+      <sc-if value="{{ heroPiano }}" hint-placeholder-val="{{ true }}">
+        <section data-screen-label="Landing hero" style="padding:56px 24px 40px;border-bottom:2px solid rgba(32,30,29,.4)">
+          <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;align-items:end">
+            <h1 style="font-size:clamp(40px,6vw,84px);line-height:1;letter-spacing:-.03em;margin:0">Music theory, one key at a time.</h1>
+            <div style="display:flex;flex-direction:column;gap:20px">
+              <p style="font-size:17px;line-height:1.5;margin:0;max-width:50ch">A structured course for adult beginners. Every concept is introduced on the piano keyboard first — you play it, then you name it.</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onClick="{{ startLesson0 }}">Begin the course</button><button class="btn btn-secondary" onClick="{{ goCurriculum }}">See the curriculum</button></div>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <section data-screen-label="Landing piano" style="padding:32px 24px;border-bottom:2px solid rgba(32,30,29,.4)">
+        <div style="max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+            <h6 style="margin:0;color:#ae1800">Try it — click or tap any key</h6>
+            <span class="text-muted" style="font-size:13px">{{ lastPlayed }}</span>
+          </div>
+          <div style="overflow-x:auto;overflow-y:hidden">
+            <div style="position:relative;height:200px;min-width:600px;user-select:none">
+              <sc-for list="{{ whites }}" as="k" hint-placeholder-count="15">
+                <div onPointerDown="{{ k.down }}" style="position:absolute;top:0;bottom:0;left:{{ k.left }}%;width:{{ k.width }}%;background:{{ k.bg }};border:1px solid #201e1d;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-size:12px;font-weight:600;color:{{ k.fg }}">{{ k.label }}</div>
+              </sc-for>
+              <sc-for list="{{ blacks }}" as="k" hint-placeholder-count="10">
+                <div onPointerDown="{{ k.down }}" style="position:absolute;top:0;height:62%;left:{{ k.left }}%;width:{{ k.width }}%;background:{{ k.bg }};border:1px solid #201e1d;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:10px;font-weight:600;color:{{ k.fg }}">{{ k.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-screen-label="Landing method" style="max-width:1200px;margin:0 auto;padding:0 24px;width:100%">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;border-bottom:2px solid rgba(32,30,29,.4)">
+          <div style="padding:32px 24px 32px 0;border-right:1px solid rgba(32,30,29,.4)"><h6 style="color:#ae1800">01 — Why the piano</h6><h3 style="margin:8px 0 12px">Theory made visible</h3><p style="font-size:15px;margin:0;opacity:.85">The keyboard lays every pitch in a straight line. Half steps, scales and chords become shapes you can see and press, not abstractions to memorise.</p></div>
+          <div style="padding:32px 24px;border-right:1px solid rgba(32,30,29,.4)"><h6 style="color:#ae1800">02 — How a lesson works</h6><h3 style="margin:8px 0 12px">Play, then name</h3><p style="font-size:15px;margin:0;opacity:.85">Each lesson is a sequence of short steps. The keyboard highlights the notes in question; you play them, hear the result, and only then read the definition.</p></div>
+          <div style="padding:32px 0 32px 24px"><h6 style="color:#ae1800">03 — Prerequisites</h6><h3 style="margin:8px 0 12px">None</h3><p style="font-size:15px;margin:0;opacity:.85">No instrument, no reading of notation. A short preparation covers posture and hand position; the course then begins with the names of the keys and ends with building chords by ear and by rule.</p></div>
+        </div>
+      </section>
+
+      <section data-screen-label="Landing curriculum" style="max-width:1200px;margin:0 auto;padding:40px 24px 56px;width:100%">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:16px"><h2 style="margin:0">Curriculum — Unit 1</h2><a href="#" onClick="{{ goCurriculum }}" style="font-size:14px">All lessons</a></div>
+        <div style="display:flex;flex-direction:column;border-top:2px solid rgba(32,30,29,.4)">
+          <sc-for list="{{ lessons }}" as="l" hint-placeholder-count="5">
+            <a href="#" onClick="{{ l.open }}" style="display:grid;grid-template-columns:48px 1fr auto auto;gap:16px;align-items:center;padding:16px 0;border-bottom:1px solid rgba(32,30,29,.4);color:inherit;text-decoration:none" style-hover="color:#ec3013">
+              <span style="font-weight:800;font-size:14px;color:#ae1800">{{ l.num }}</span>
+              <span style="font-weight:800;font-size:18px">{{ l.title }}</span>
+              <span class="text-muted" style="font-size:13px">{{ l.duration }}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" style="display:{{ l.checkDisplay }};color:#ec3013;flex:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+
+      <section data-screen-label="Landing banner" style="background:#ec3013;color:#f3f2f2;padding:56px 24px">
+        <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap">
+          <h2 style="font-size:clamp(32px,5vw,64px);line-height:1;letter-spacing:-.03em;margin:0;max-width:16ch">Fifteen minutes. One idea. Every day.</h2>
+          <button class="btn" onClick="{{ startLesson0 }}" style="background:#201e1d;color:#f3f2f2">Begin the course</button>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{ isCurriculum }}" hint-placeholder-val="{{ false }}">
+    <main data-screen-label="Curriculum" style="flex:1;max-width:1200px;margin:0 auto;padding:48px 24px 64px;width:100%">
+      <h6 style="color:#ae1800">Unit 1 · The keyboard</h6>
+      <h1 style="margin:8px 0 8px">Curriculum</h1>
+      <p style="max-width:56ch;opacity:.85;margin-bottom:32px">A short preparation on posture and hand position, then five lessons that move from naming keys to building chords. Each one ends with a short playing exercise on the keyboard.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));border-top:2px solid rgba(32,30,29,.4);border-left:2px solid rgba(32,30,29,.4)">
+        <sc-for list="{{ lessons }}" as="l" hint-placeholder-count="5">
+          <a href="#" onClick="{{ l.open }}" class="card" style="background:transparent;padding:24px;border-right:2px solid rgba(32,30,29,.4);border-bottom:2px solid rgba(32,30,29,.4);gap:12px;min-height:240px;color:inherit;text-decoration:none;cursor:pointer" style-hover="background:#eae9e9">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;font-size:28px;color:#ae1800">{{ l.num }}</span><span style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" style="display:{{ l.checkDisplay }};color:#ec3013;flex:none"><polyline points="20 6 9 17 4 12"></polyline></svg><span class="{{ l.tagClass }}">{{ l.status }}</span></span></div>
+            <h3 style="margin:0;font-size:22px">{{ l.title }}</h3>
+            <p class="card-body" style="font-size:14px">{{ l.summary }}</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="card-meta" style="white-space:nowrap">{{ l.duration }} · {{ l.stepCount }} steps</span><span style="font-family:inherit;font-weight:800;font-size:14px;color:#ec3013">Open →</span></div>
+          </a>
+        </sc-for>
+        <div style="padding:24px;border-right:2px solid rgba(32,30,29,.4);border-bottom:2px solid rgba(32,30,29,.4);display:flex;flex-direction:column;justify-content:flex-end;gap:8px;background:#eae9e9"><h6 style="color:#ae1800;margin:0">Unit 2 · Coming next</h6><p style="font-size:14px;margin:0;opacity:.8">Minor scales, seventh chords and the circle of fifths.</p></div>
+      </div>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{ isLesson }}" hint-placeholder-val="{{ false }}">
+    <main data-screen-label="Lesson" style="flex:1;max-width:1200px;margin:0 auto;padding:0 24px 64px;width:100%;display:flex;flex-wrap:wrap;gap:0">
+      <aside style="flex:1 1 220px;max-width:280px;padding:32px 24px 32px 0;border-right:2px solid rgba(32,30,29,.4);display:flex;flex-direction:column;gap:2px">
+        <h6 style="color:#ae1800;margin-bottom:12px">Unit 1</h6>
+        <sc-for list="{{ lessons }}" as="l" hint-placeholder-count="5">
+          <a href="#" onClick="{{ l.open }}" style="display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(32,30,29,.2);text-decoration:none;font-size:14px;color:{{ l.navColor }};font-weight:{{ l.navWeight }}"><span>{{ l.num }}</span><span>{{ l.title }}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" style="display:{{ l.checkDisplay }};color:#ec3013;flex:none"><polyline points="20 6 9 17 4 12"></polyline></svg></a>
+        </sc-for>
+      </aside>
+      <section style="flex:3 1 420px;padding:32px 0 0 24px;display:flex;flex-direction:column;gap:24px;min-width:0">
+        <div>
+          <h6 style="color:#ae1800">Lesson {{ lesson.num }} · Step {{ stepNum }} of {{ lesson.stepCount }}</h6>
+          <h1 style="margin:8px 0 0;font-size:clamp(30px,4vw,44px)">{{ lesson.title }}</h1>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;gap:4px;height:8px">
+            <sc-for list="{{ progressSegs }}" as="sg" hint-placeholder-count="3">
+              <div style="flex:1;background:{{ sg.bg }};transition:background .3s"></div>
+            </sc-for>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:#ae1800">{{ progress }}% complete</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+            <span style="font-size:13px;font-weight:600">{{ keyboardHint }}</span>
+            <span class="text-muted" style="font-size:13px">{{ lastPlayed }}</span>
+          </div>
+          <div id="lesson-kb" style="overflow-x:{{ kbOverflow }};overflow-y:hidden">
+            <div style="position:relative;height:180px;min-width:{{ kbMin }}px;user-select:none">
+              <sc-for list="{{ whites }}" as="k" hint-placeholder-count="15">
+                <div onPointerDown="{{ k.down }}" style="position:absolute;top:0;bottom:0;left:{{ k.left }}%;width:{{ k.width }}%;background:{{ k.bg }};border:1px solid #201e1d;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-size:12px;font-weight:600;color:{{ k.fg }}">{{ k.label }}</div>
+              </sc-for>
+              <sc-for list="{{ blacks }}" as="k" hint-placeholder-count="10">
+                <div onPointerDown="{{ k.down }}" style="position:absolute;top:0;height:62%;left:{{ k.left }}%;width:{{ k.width }}%;background:{{ k.bg }};border:1px solid #201e1d;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:10px;font-weight:600;color:{{ k.fg }}">{{ k.label }}</div>
+              </sc-for>
+            </div>
+            <div style="position:relative;height:18px;display:{{ octaveRowDisplay }}">
+              <sc-for list="{{ octaveMarks }}" as="o" hint-placeholder-count="8">
+                <span style="position:absolute;left:{{ o.left }}%;width:{{ o.width }}%;text-align:center;font-size:11px;font-weight:{{ o.weight }};color:{{ o.color }};line-height:18px">{{ o.label }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;border-top:2px solid rgba(32,30,29,.4);padding-top:24px">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <h3 style="margin:0">{{ step.title }}</h3>
+            <p style="margin:0;font-size:16px;line-height:1.55;text-wrap:pretty">{{ step.text }}</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+              <button class="btn btn-primary" onClick="{{ playStep }}" style="display:{{ step.playDisplay }}">{{ step.playLabel }}</button>
+            </div>
+          </div>
+          <div style="background:#eae9e9;padding:20px;display:flex;flex-direction:column;gap:8px;align-self:start">
+            <h6 style="margin:0;color:#ae1800">Definition</h6>
+            <p style="margin:0;font-size:14px;line-height:1.5;text-wrap:pretty">{{ step.definition }}</p>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;gap:8px;border-top:2px solid rgba(32,30,29,.4);padding-top:16px;flex-wrap:wrap">
+          <button class="btn btn-secondary" onClick="{{ prevStep }}" disabled="{{ atFirst }}">Previous</button>
+          <button class="btn btn-primary" onClick="{{ nextStep }}">{{ nextLabel }}</button>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <footer style="border-top:2px solid rgba(32,30,29,.4);padding:16px 24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12px;opacity:.7"><span>Tonic — music theory from the keyboard</span><span>Unit 1 of 4</span></footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;hero&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Piano-first&quot;,&quot;options&quot;:[&quot;Piano-first&quot;,&quot;Poster&quot;],&quot;tsType&quot;:&quot;'Piano-first'|'Poster'&quot;,&quot;section&quot;:&quot;Landing&quot;},&quot;keyLabels&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;All keys&quot;,&quot;options&quot;:[&quot;All keys&quot;,&quot;Highlighted only&quot;,&quot;C only&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Keyboard&quot;},&quot;sound&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Piano&quot;,&quot;options&quot;:[&quot;Piano&quot;,&quot;Organ&quot;],&quot;tsType&quot;:&quot;'Piano'|'Organ'&quot;,&quot;section&quot;:&quot;Keyboard&quot;}}">
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const LESSONS = [
+  { title: 'Before you begin', duration: '8 min', summary: 'Sitting at the keyboard, finger numbers, finding middle C and where the right hand rests.', steps: [
+    { title: 'Sit at the middle', text: 'Sit centred on the keyboard, far enough back that your elbows fall just in front of your body. Forearms level with the keys, shoulders down. If you are using a laptop or phone, the same idea applies: relaxed, upright, unhurried.', definition: 'Good posture is the first technique. Tension in the shoulders and wrists is the most common cause of mistakes.', highlight: [], play: [], mode: 'none', hint: 'Nothing to play yet' },
+    { title: 'Finger numbers', text: 'Both hands number the same way: thumb is 1, index 2, middle 3, ring 4, little finger 5. Exercises in this course refer to fingers by number, never by name.', definition: 'Finger numbers 1–5 run from thumb to little finger on each hand.', highlight: [], play: [], mode: 'none', hint: 'Hold up a hand and count 1 to 5 from the thumb' },
+    { title: 'The whole keyboard', text: 'A full piano has 88 keys — a little over seven octaves. The pattern of black keys repeats every twelve keys, so there are eight Cs. The one nearest the middle is middle C, written C4. Every lesson from here on starts there; scroll the keyboard to find it and press it.', definition: 'Middle C (C4) is the fourth C from the left on an 88-key piano. Octave numbers count up from the bottom: C1, C2 … C8.', highlight: [60], play: [60], mode: 'seq', hint: 'Find and press middle C (C4)' },
+    { title: 'Resting the right hand', text: 'Curve the fingers as if holding a ball. Place the right thumb (1) on middle C and let fingers 2, 3, 4 and 5 fall on D, E, F and G. This is the five-finger position every early exercise starts from.', definition: 'C position: right-hand fingers 1–5 on C, D, E, F, G.', highlight: [60,62,64,65,67], play: [60,62,64,65,67], mode: 'seq', hint: 'Fingers 1–5 on C D E F G' },
+    { title: 'Pressing a key', text: 'Play C with the thumb using the weight of the hand, not a push from the finger. Let the key come back up fully before playing it again. Try C, then walk up to G one finger at a time.', definition: 'A note sounds when the key is fully down. Releasing it stops the sound. Speed and force change only the volume.', highlight: [60], play: [60,62,64,65,67,65,64,62,60], mode: 'seq', hint: 'Play C with the thumb, then walk up and back' }
+  ]},
+  { title: 'Note names on the keyboard', duration: '12 min', summary: 'Find C, learn the seven letter names and how black keys borrow theirs.', steps: [
+    { title: 'Find middle C', text: 'Look at the pattern of black keys: they alternate in groups of two and three. The white key immediately to the left of any group of two is C. Play it.', definition: 'C is the reference point of the keyboard. Every other key is named relative to it.', highlight: [60], play: [60], mode: 'seq', hint: 'C is highlighted — press it' },
+    { title: 'The seven letters', text: 'From C, the white keys ascend D, E, F, G, A, B, then C again. Only seven letters exist; the pattern repeats each octave.', definition: 'An octave is the distance from one note to the next note with the same name. The frequency exactly doubles.', highlight: [60,62,64,65,67,69,71,72], play: [60,62,64,65,67,69,71,72], mode: 'seq', hint: 'Play the white keys from C to C' },
+    { title: 'Black keys: sharps and flats', text: 'A black key borrows its name from a neighbour. The key right of C is C sharp (C♯); it is also D flat (D♭). Both names point to the same key.', definition: 'Sharp (♯) raises a note by one key; flat (♭) lowers it. Two names for one key are called enharmonic equivalents.', highlight: [61,63,66,68,70], play: [61,63,66,68,70], mode: 'seq', hint: 'The five black keys of one octave' }
+  ]},
+  { title: 'Half steps and whole steps', duration: '10 min', summary: 'The two smallest distances, and why E–F and B–C are special.', steps: [
+    { title: 'The half step', text: 'A half step is the distance between any key and its immediate neighbour, black or white. C to C♯ is a half step. Play both.', definition: 'The half step (semitone) is the smallest interval on the piano. There are twelve in an octave.', highlight: [60,61], play: [60,61], mode: 'seq', hint: 'C → C♯' },
+    { title: 'The whole step', text: 'A whole step skips one key. C to D is a whole step because C♯ sits between them.', definition: 'A whole step (tone) equals two half steps.', highlight: [60,62], play: [60,62], mode: 'seq', hint: 'C → D, skipping C♯' },
+    { title: 'Where there is no black key', text: 'E to F and B to C have no key between them. Those white-to-white moves are half steps, not whole steps. This asymmetry is what gives scales their character.', definition: 'Between E–F and B–C the white keys are a half step apart. Everywhere else adjacent white keys are a whole step apart.', highlight: [64,65,71,72], play: [64,65,71,72], mode: 'seq', hint: 'E → F and B → C' }
+  ]},
+  { title: 'The major scale', duration: '15 min', summary: 'Build C major from a pattern of steps, then hear it.', steps: [
+    { title: 'The formula', text: 'A major scale is a fixed pattern of steps: whole, whole, half, whole, whole, whole, half. Start on C and follow it — you land only on white keys.', definition: 'Major scale: W–W–H–W–W–W–H. Eight notes, the last repeating the first an octave higher.', highlight: [60,62,64,65,67,69,71,72], play: [60,62,64,65,67,69,71,72], mode: 'seq', hint: 'C major — play it ascending' },
+    { title: 'Scale degrees', text: 'Each note in the scale has a number: C is 1, D is 2, up to B as 7. These degrees are how chords will be described in Lesson 5.', definition: 'Scale degrees number the notes of a scale from the starting note (the tonic, degree 1).', highlight: [60,64,67], play: [60,64,67], mode: 'seq', hint: 'Degrees 1, 3 and 5 highlighted' },
+    { title: 'Same formula, new start', text: 'Apply W–W–H–W–W–W–H starting on G and you need one black key: F♯. The sound is the same shape, just higher.', definition: 'Every major scale uses the same step formula; only the starting note changes.', highlight: [67,69,71,72,74,76,78,79], play: [67,69,71,72,74,76,78,79], mode: 'seq', hint: 'G major — note the F♯' }
+  ]},
+  { title: 'Intervals', duration: '14 min', summary: 'Name the distance between two notes by counting letters.', steps: [
+    { title: 'Counting an interval', text: 'Count letter names from the lower note to the upper, including both. C to E is C–D–E: three letters, so it is a third.', definition: 'An interval is the distance between two pitches, named by the number of letter names it spans.', highlight: [60,64], play: [60,64], mode: 'chord', hint: 'C and E — a third' },
+    { title: 'Major and minor thirds', text: 'C to E spans four half steps: a major third. C to E♭ spans three: a minor third. The number stays; the quality changes.', definition: 'Major third = 4 half steps. Minor third = 3 half steps.', highlight: [60,63,64], play: [60,64,60,63], mode: 'seq', hint: 'Compare C–E and C–E♭' },
+    { title: 'The perfect fifth', text: 'C to G spans five letters and seven half steps: a perfect fifth. It is the most stable interval after the octave and the backbone of every chord you will build.', definition: 'Perfect fifth = 7 half steps. Perfect intervals (unison, fourth, fifth, octave) are neither major nor minor.', highlight: [60,67], play: [60,67], mode: 'chord', hint: 'C and G together' }
+  ]},
+  { title: 'Building triads', duration: '16 min', summary: 'Stack two thirds to make a chord; change one note to change its mood.', steps: [
+    { title: 'The major triad', text: 'Take degrees 1, 3 and 5 of the major scale — C, E, G — and play them together. That is a C major triad.', definition: 'A triad is a three-note chord built from a root, a third and a fifth. Major triad: major third + minor third on top.', highlight: [60,64,67], play: [60,64,67], mode: 'chord', hint: 'C – E – G together' },
+    { title: 'The minor triad', text: 'Lower the middle note by a half step: C, E♭, G. Same root and fifth, but the third is now minor, and the chord darkens.', definition: 'Minor triad: minor third + major third on top. Only the third differs from the major triad.', highlight: [60,63,67], play: [60,63,67], mode: 'chord', hint: 'C – E♭ – G together' },
+    { title: 'Triads on every degree', text: 'Build a triad on each note of C major using only white keys. Degrees 1, 4 and 5 give major triads; 2, 3 and 6 give minor; 7 gives a diminished triad.', definition: 'Diatonic triads are the chords that use only the notes of one scale. In a major key: I, IV, V major; ii, iii, vi minor; vii° diminished.', highlight: [65,69,72], play: [60,64,67,65,69,72,67,71,74], mode: 'seq', hint: 'F major (IV) highlighted' }
+  ]}
+];
+class Component extends DCLogic {
+  state = { screen: 'landing', lesson: 0, step: 0, pressed: {}, last: 'Nothing played yet', done: {} };
+  ctx = null;
+  freq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  tone(m, t0, dur) {
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const c = this.ctx, t = c.currentTime + t0;
+    const wave = this.props.sound === 'Organ' ? 'square' : 'triangle';
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = wave; o.frequency.value = this.freq(m);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(wave === 'square' ? 0.08 : 0.25, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
+    setTimeout(() => {
+      this.setState(s => ({ pressed: { ...s.pressed, [m]: true } }));
+      setTimeout(() => this.setState(s => { const p = { ...s.pressed }; delete p[m]; return { pressed: p }; }), Math.min(dur, 0.5) * 1000);
+    }, t0 * 1000);
+  }
+  name(m) { return NAMES[m % 12] + Math.floor(m / 12 - 1); }
+  press(m) { this.tone(m, 0, 1.2); this.setState({ last: 'Played ' + this.name(m) }); }
+  playStep() {
+    const st = LESSONS[this.state.lesson].steps[this.state.step];
+    if (st.mode === 'chord') { st.play.forEach(m => this.tone(m, 0, 1.8)); this.setState({ last: 'Played ' + st.play.map(m => NAMES[m % 12]).join(' – ') }); }
+    else { st.play.forEach((m, i) => this.tone(m, i * 0.4, 0.6)); this.setState({ last: 'Played ' + st.play.map(m => NAMES[m % 12]).join(' → ') }); }
+  }
+  go(screen, extra) {
+    this.setState({ screen, ...(extra || {}) }); window.scrollTo(0, 0);
+  }
+  centerC4(n) {
+    const el = document.getElementById('lesson-kb');
+    if (el && el.scrollWidth > el.clientWidth) { el.scrollLeft = el.scrollWidth * 0.452 - el.clientWidth / 2; return; }
+    if (n < 30) setTimeout(() => this.centerC4(n + 1), 60);
+  }
+  renderVals() {
+    const { screen, lesson, step, pressed, done } = this.state;
+    const inLesson = screen === 'lesson';
+    const L = LESSONS[lesson], S = L.steps[step];
+    const hl = new Set(inLesson ? S.highlight : []);
+    const labels = this.props.keyLabels ?? 'All keys';
+    const full = inLesson && lesson === 0;
+    const keys = []; for (let m = full ? 21 : 60; m <= (full ? 108 : 84); m++) keys.push(m);
+    const whitesM = keys.filter(m => ![1,3,6,8,10].includes(m % 12));
+    const w = 100 / whitesM.length, bw = w * 0.6;
+    const mk = (m, left, width, black) => {
+      const on = !!pressed[m], h = hl.has(m);
+      const bg = on ? '#ec3013' : h ? (black ? '#ae1800' : '#ffc4b8') : black ? '#201e1d' : '#f8f4f4';
+      const fg = on || (black) ? '#f3f2f2' : '#201e1d';
+      const show = full ? false : (h || on || labels === 'All keys' || (labels === 'C only' && m % 12 === 0));
+      return { left: left.toFixed(3), width: width.toFixed(3), bg, fg, label: show ? NAMES[m % 12] + (m % 12 === 0 || full ? Math.floor(m / 12 - 1) : '') : '', down: (e) => { e.preventDefault(); this.press(m); } };
+    };
+    const whites = whitesM.map((m, i) => mk(m, i * w, w, false));
+    const blacks = keys.filter(m => [1,3,6,8,10].includes(m % 12)).map(m => { const wi = whitesM.findIndex(x => x > m); return mk(m, wi * w - bw / 2, bw, true); });
+    const lessons = LESSONS.map((l, i) => ({
+      num: String(i).padStart(2, '0'), title: l.title, duration: l.duration, summary: l.summary, stepCount: l.steps.length,
+      status: done[i] ? 'Complete' : (i === lesson && inLesson) ? 'In progress' : i === lesson ? 'Up next' : i < lesson ? 'Started' : 'Not started',
+      tagClass: done[i] || i <= lesson ? 'tag tag-accent' : 'tag tag-neutral', checkDisplay: done[i] ? 'block' : 'none',
+      navColor: inLesson && i === lesson ? '#ec3013' : '#201e1d', navWeight: inLesson && i === lesson ? 800 : 400,
+      open: (e) => { e.preventDefault(); this.go('lesson', { lesson: i, step: 0 }); }
+    }));
+    const last = step === L.steps.length - 1, lastLesson = lesson === LESSONS.length - 1;
+    const pv = (e) => e && e.preventDefault && e.preventDefault();
+    return {
+      isLanding: screen === 'landing', isCurriculum: screen === 'curriculum', isLesson: inLesson,
+      curLanding: screen === 'landing' ? 'page' : undefined, curCurriculum: screen === 'curriculum' ? 'page' : undefined, curLesson: inLesson ? 'page' : undefined,
+      heroPoster: (this.props.hero ?? 'Piano-first') === 'Poster', heroPiano: (this.props.hero ?? 'Piano-first') !== 'Poster',
+      goLanding: (e) => { pv(e); this.go('landing'); }, goCurriculum: (e) => { pv(e); this.go('curriculum'); },
+      goLessonNav: (e) => { pv(e); this.go('lesson'); }, startLesson0: (e) => { pv(e); this.go('lesson', { lesson: 0, step: 0 }); },
+      whites, blacks, lessons, lastPlayed: this.state.last, kbMin: full ? 0 : 600, kbOverflow: full ? 'hidden' : 'auto',
+      octaveRowDisplay: full ? 'block' : 'none',
+      octaveMarks: whitesM.map((m, i) => ({ m, i })).filter(x => x.m % 12 === 0).map(x => ({ left: (x.i * w).toFixed(3), width: w.toFixed(3), label: 'C' + Math.floor(x.m / 12 - 1), weight: x.m === 60 ? 800 : 400, color: x.m === 60 ? '#ae1800' : '#605d5d' })),
+      lesson: { num: String(lesson).padStart(2, '0'), title: L.title, stepCount: L.steps.length },
+      step: { ...S, playLabel: S.mode === 'chord' ? 'Play chord' : 'Play example', playDisplay: S.mode === 'none' ? 'none' : 'inline-flex' }, stepNum: step + 1,
+      progress: Math.round(((step + 1) / L.steps.length) * 100), keyboardHint: S.hint,
+      progressSegs: L.steps.map((_, i) => ({ bg: i <= step ? '#ec3013' : '#d7d3d3' })),
+      playStep: () => this.playStep(), atFirst: step === 0,
+      prevStep: () => this.setState({ step: Math.max(0, step - 1) }),
+      nextStep: () => { if (!last) this.setState({ step: step + 1 }); else { const d = { ...done, [lesson]: true }; if (!lastLesson) this.go('lesson', { lesson: lesson + 1, step: 0, done: d }); else this.go('curriculum', { done: d }); } },
+      nextLabel: !last ? 'Next step' : !lastLesson ? 'Next lesson' : 'Finish unit'
+    };
+  }
+}
+</script>
+</body>
+</html>
