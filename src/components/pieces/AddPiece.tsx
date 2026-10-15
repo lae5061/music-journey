@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { LEVEL_LABEL, type Piece, type PieceLevel } from '../../data/pieces'
 import { ABC_SKELETON } from '../../lib/abc'
+import { unlockAudio } from '../../lib/audio'
 import { pieceHref, piecesHref } from '../../lib/route'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { useScorePlayer } from '../../lib/useScorePlayer'
+import { useScoreSound } from '../../lib/useScoreSound'
 import { AbcCheatSheet } from './AbcCheatSheet'
 
 interface AddPieceProps {
@@ -28,6 +30,7 @@ export function AddPiece({ editing, onSave, onDelete }: AddPieceProps) {
     return () => window.clearTimeout(id)
   }, [text])
 
+  const sound = useScoreSound()
   const player = useScorePlayer({
     abc: preview,
     target: box,
@@ -35,7 +38,19 @@ export function AddPiece({ editing, onSave, onDelete }: AddPieceProps) {
     tempoPct: 100,
     hands: 'both',
     countIn: false,
+    onNoteOn: sound.onNoteOn,
+    onFinish: sound.release,
   })
+
+  const hear = () => {
+    if (player.status === 'playing') {
+      player.pause()
+      sound.release()
+    } else {
+      unlockAudio()
+      player.play()
+    }
+  }
 
   const open = async (file: File | undefined) => {
     if (!file) return
@@ -98,7 +113,7 @@ export function AddPiece({ editing, onSave, onDelete }: AddPieceProps) {
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={player.status === 'playing' ? player.pause : player.play}
+              onClick={hear}
               disabled={player.status !== 'ready' && player.status !== 'playing' && player.status !== 'paused'}
             >
               {player.status === 'playing' ? 'Pause' : 'Hear it'}

@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { TIMBRE } from '../../config'
+import { useCallback, useRef, useState } from 'react'
 import type { Piece } from '../../data/pieces'
 import type { Hands } from '../../lib/abc'
-import { playClick, playNote, unlockAudio, type Sounded } from '../../lib/audio'
+import { playClick, unlockAudio } from '../../lib/audio'
 import { rangeFor } from '../../lib/keyboard'
 import { pieceHref, piecesHref } from '../../lib/route'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { useScorePlayer } from '../../lib/useScorePlayer'
+import { useScoreSound } from '../../lib/useScoreSound'
 import { MidiControl } from '../MidiControl'
 import { Piano } from '../Piano'
 import { Transport } from './Transport'
@@ -19,8 +19,6 @@ interface PiecePlayerProps {
 }
 
 const NARROW = '(max-width: 700px)'
-/** A key stays lit for the note, but a long note goes dark sooner so runs still flicker. */
-const LIGHT_CAP_S = 0.6
 
 /** The score, its transport, and the keyboard lighting under it. */
 export function PiecePlayer({ piece, pressed, onPressKey, onHoldKey }: PiecePlayerProps) {
@@ -32,47 +30,11 @@ export function PiecePlayer({ piece, pressed, onPressKey, onHoldKey }: PiecePlay
   const [count, setCount] = useState<{ beat: number; perBar: number } | null>(null)
   const scoreBox = useRef<HTMLDivElement>(null)
 
-  // Every lit key and sounding note, so pausing can silence and darken them all.
-  const live = useRef<{ timers: Set<number>; notes: Set<Sounded>; keys: Map<number, number> }>({
-    timers: new Set(),
-    notes: new Set(),
-    keys: new Map(),
-  })
-
+  const sound = useScoreSound(onHoldKey)
   const release = useCallback(() => {
-    const l = live.current
-    l.timers.forEach(window.clearTimeout)
-    l.timers.clear()
-    l.notes.forEach((n) => n.stop())
-    l.notes.clear()
-    l.keys.forEach((count, midi) => {
-      for (let i = 0; i < count; i++) onHoldKey(midi, false)
-    })
-    l.keys.clear()
+    sound.release()
     setCount(null)
-  }, [onHoldKey])
-
-  useEffect(() => release, [release])
-
-  const onNoteOn = useCallback(
-    (midi: number, durationS: number, velocity: number) => {
-      const l = live.current
-      const note = playNote(midi, TIMBRE, Math.max(0.15, durationS), Math.max(0.3, velocity))
-      l.notes.add(note)
-      onHoldKey(midi, true)
-      l.keys.set(midi, (l.keys.get(midi) ?? 0) + 1)
-      const id = window.setTimeout(() => {
-        l.timers.delete(id)
-        l.notes.delete(note)
-        onHoldKey(midi, false)
-        const left = (l.keys.get(midi) ?? 1) - 1
-        if (left > 0) l.keys.set(midi, left)
-        else l.keys.delete(midi)
-      }, Math.min(durationS, LIGHT_CAP_S) * 1000)
-      l.timers.add(id)
-    },
-    [onHoldKey],
-  )
+  }, [sound])
 
   const onBeat = useCallback(
     (beat: number, perBar: number, countingIn: boolean) => {
@@ -89,7 +51,7 @@ export function PiecePlayer({ piece, pressed, onPressKey, onHoldKey }: PiecePlay
     tempoPct,
     hands,
     countIn,
-    onNoteOn,
+    onNoteOn: sound.onNoteOn,
     onBeat,
     onFinish: release,
   })
