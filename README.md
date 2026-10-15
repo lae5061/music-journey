@@ -65,8 +65,8 @@ The score is drawn and timed by [abcjs](https://www.abcjs.net/), fetched the fir
 piece is opened so the course bundle stays small. Sound and lights are Tonic's own: every
 note abcjs reports is struck on the app's synth and lights the on-screen key, and the
 playing notes are tinted on the page behind a moving cursor. The transport has play,
-pause and stop, a tempo slider from 40 to 150 percent of the written tempo that can be
-moved mid-piece, a both-right-left hands switch, a count-in and a click; clicking a bar
+pause and stop, a tempo slider in beats a minute (30 to 200, with the written tempo a
+click away) that can be moved mid-piece, a both-right-left hands switch, a count-in and a click; clicking a bar
 in the progress track or a note in the score jumps there. On a phone the keyboard pins to
 the bottom and the score wraps two bars to a line.
 

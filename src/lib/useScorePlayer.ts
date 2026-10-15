@@ -16,8 +16,8 @@ export interface ScorePlayerOptions {
   target: RefObject<HTMLDivElement | null>
   /** Fewer bars to a line on a narrow screen. */
   narrow: boolean
-  /** 40–150, of the piece's own tempo. */
-  tempoPct: number
+  /** Beats a minute; the piece's own tempo when left out. */
+  bpm?: number
   hands: Hands
   countIn: boolean
   onNoteOn?: (midi: number, durationS: number, velocity: number) => void
@@ -57,7 +57,7 @@ export function useScorePlayer({
   abc,
   target,
   narrow,
-  tempoPct,
+  bpm: wantedBpm,
   hands,
   countIn,
   onNoteOn,
@@ -102,7 +102,7 @@ export function useScorePlayer({
     }
   }, [])
 
-  const bpm = Math.max(20, Math.round((baseBpm * tempoPct) / 100))
+  const bpm = Math.max(20, Math.round(wantedBpm ?? baseBpm))
 
   const unlight = () => {
     for (const el of lit.current) el.classList.remove(PLAYING_CLASS)

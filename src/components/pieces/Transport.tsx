@@ -3,8 +3,7 @@ import type { ScorePlayer } from '../../lib/useScorePlayer'
 
 interface TransportProps {
   player: ScorePlayer
-  tempoPct: number
-  onTempo: (pct: number) => void
+  onTempo: (bpm: number) => void
   hands: Hands
   onHands: (h: Hands) => void
   countIn: boolean
@@ -13,8 +12,9 @@ interface TransportProps {
   onClick: (on: boolean) => void
 }
 
-const TEMPO_MIN = 40
-const TEMPO_MAX = 150
+const TEMPO_MIN = 30
+const TEMPO_MAX = 200
+/** What the − and + buttons move by. */
 const TEMPO_STEP = 5
 
 const HANDS: { id: Hands; title: string }[] = [
@@ -26,7 +26,6 @@ const HANDS: { id: Hands; title: string }[] = [
 /** Play, stop, tempo, hands, and the two checkboxes. */
 export function Transport({
   player,
-  tempoPct,
   onTempo,
   hands,
   onHands,
@@ -37,7 +36,8 @@ export function Transport({
 }: TransportProps) {
   const busy = player.status === 'loading' || player.status === 'error'
   const playing = player.status === 'playing'
-  const clamp = (pct: number) => Math.min(TEMPO_MAX, Math.max(TEMPO_MIN, pct))
+  const clamp = (bpm: number) => Math.min(TEMPO_MAX, Math.max(TEMPO_MIN, bpm))
+  const changed = player.bpm !== player.baseBpm
 
   return (
     <div className="transport">
@@ -67,22 +67,27 @@ export function Transport({
         <label className="transport-tempo">
           <span className="kicker">Tempo</span>
           <span className="transport-tempo-value">
-            ♩ = {player.bpm} · {tempoPct}%
+            ♩ = {player.bpm}
+            {changed && (
+              <button type="button" className="transport-written" onClick={() => onTempo(player.baseBpm)}>
+                written {player.baseBpm}
+              </button>
+            )}
           </span>
           <span className="transport-tempo-input">
-            <button type="button" className="btn btn-ghost" onClick={() => onTempo(clamp(tempoPct - TEMPO_STEP))} aria-label="Slower">
+            <button type="button" className="btn btn-ghost" onClick={() => onTempo(clamp(player.bpm - TEMPO_STEP))} aria-label="Slower">
               −
             </button>
             <input
               type="range"
               min={TEMPO_MIN}
               max={TEMPO_MAX}
-              step={TEMPO_STEP}
-              value={tempoPct}
+              step={1}
+              value={clamp(player.bpm)}
               onChange={(e) => onTempo(Number(e.target.value))}
-              aria-label="Tempo, percent of the written tempo"
+              aria-label="Tempo, beats a minute"
             />
-            <button type="button" className="btn btn-ghost" onClick={() => onTempo(clamp(tempoPct + TEMPO_STEP))} aria-label="Faster">
+            <button type="button" className="btn btn-ghost" onClick={() => onTempo(clamp(player.bpm + TEMPO_STEP))} aria-label="Faster">
               +
             </button>
           </span>

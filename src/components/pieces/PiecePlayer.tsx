@@ -23,7 +23,8 @@ const NARROW = '(max-width: 700px)'
 /** The score, its transport, and the keyboard lighting under it. */
 export function PiecePlayer({ piece, pressed, onPressKey, onHoldKey }: PiecePlayerProps) {
   const narrow = useMediaQuery(NARROW)
-  const [tempoPct, setTempoPct] = useState(100)
+  // Null until the score says what it is written at.
+  const [bpm, setBpm] = useState<number | null>(null)
   const [hands, setHands] = useState<Hands>('both')
   const [countIn, setCountIn] = useState(true)
   const [click, setClick] = useState(false)
@@ -48,7 +49,7 @@ export function PiecePlayer({ piece, pressed, onPressKey, onHoldKey }: PiecePlay
     abc: piece.abc,
     target: scoreBox,
     narrow,
-    tempoPct,
+    bpm: bpm ?? undefined,
     hands,
     countIn,
     onNoteOn: sound.onNoteOn,
@@ -99,8 +100,7 @@ export function PiecePlayer({ piece, pressed, onPressKey, onHoldKey }: PiecePlay
       <div className="game-board score-board">
         <Transport
           player={wrapped}
-          tempoPct={tempoPct}
-          onTempo={setTempoPct}
+          onTempo={setBpm}
           hands={hands}
           onHands={setHands}
           countIn={countIn}

@@ -35,7 +35,6 @@ export function AddPiece({ editing, onSave, onDelete }: AddPieceProps) {
     abc: preview,
     target: box,
     narrow,
-    tempoPct: 100,
     hands: 'both',
     countIn: false,
     onNoteOn: sound.onNoteOn,
