@@ -33,8 +33,17 @@ export function useScoreSound(holdKey?: (midi: number, on: boolean) => void) {
   useEffect(() => release, [release])
 
   const onNoteOn = useCallback(
-    (midi: number, durationS: number, velocity: number) => {
+    function onNoteOn(midi: number, durationS: number, velocity: number, delayS = 0) {
       const l = live.current
+      if (delayS > 0) {
+        // A rolled chord's upper notes wait their turn; a pause meanwhile cancels them.
+        const id = window.setTimeout(() => {
+          l.timers.delete(id)
+          onNoteOn(midi, durationS, velocity, 0)
+        }, delayS * 1000)
+        l.timers.add(id)
+        return
+      }
       const note = playNote(midi, TIMBRE, Math.max(0.15, durationS), Math.max(0.3, velocity))
       l.notes.add(note)
       if (holdKey) {

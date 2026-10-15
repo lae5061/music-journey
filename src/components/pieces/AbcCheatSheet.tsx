@@ -30,7 +30,8 @@ export function AbcCheatSheet() {
         </dd>
         <dt>Chords, ties, slurs</dt>
         <dd>
-          <code>[CEG]2</code> a chord, <code>C2-C2</code> a tie, <code>(C D E)</code> a slur.
+          <code>[CEG]2</code> a chord, <code>!arpeggio![CEG]2</code> a rolled one, <code>C2-C2</code> a tie,{' '}
+          <code>(C D E)</code> a slur.
         </dd>
         <dt>Two hands</dt>
         <dd>

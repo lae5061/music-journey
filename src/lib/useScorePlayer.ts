@@ -20,7 +20,8 @@ export interface ScorePlayerOptions {
   bpm?: number
   hands: Hands
   countIn: boolean
-  onNoteOn?: (midi: number, durationS: number, velocity: number) => void
+  /** `delayS` is how long after the beat the note should start: a rolled chord's upper notes come a little late. */
+  onNoteOn?: (midi: number, durationS: number, velocity: number, delayS: number) => void
   onBeat?: (beatInBar: number, perBar: number, countingIn: boolean) => void
   onFinish?: () => void
 }
@@ -44,6 +45,8 @@ export interface ScorePlayer {
 }
 
 const CURSOR_CLASS = 'score-cursor'
+/** How far apart the notes of a rolled chord strike, bottom to top. */
+const ROLL_GAP_S = 0.045
 const PLAYING_CLASS = 'is-playing'
 
 interface Pitch {
@@ -213,11 +216,26 @@ export function useScorePlayer({
         showEvent(ev)
         setBar(Math.max(1, Math.floor((ev.milliseconds - offsetMs) / ev.millisecondsPerMeasure) + 1))
         const pitches = (ev.midiPitches ?? []) as Pitch[]
+        // A chord marked !arpeggio! is rolled: abcjs draws the wavy line but strikes the
+        // notes together, so the roll is added here, lowest note first.
+        const rolled = new Map<number, number>()
         for (const p of pitches) {
+          if (p.startChar === undefined || rolled.has(p.startChar)) continue
+          const item = t.getElementFromChar(p.startChar) as { decoration?: string[] } | null
+          if (item?.decoration?.includes('arpeggio')) rolled.set(p.startChar, 0)
+        }
+        const sorted = [...pitches].sort((a, b) => a.pitch - b.pitch)
+        for (const p of sorted) {
           if (!handPlays(latest.current.hands, voiceOf.current.get(p.startChar ?? -1))) continue
           // abcjs durations are fractions of a whole note; a beat is `beatLength` of one.
           const durS = (p.duration / beatLength) * (60 / bpm)
-          latest.current.onNoteOn?.(p.pitch, durS, p.volume / 127)
+          let delayS = 0
+          if (p.startChar !== undefined && rolled.has(p.startChar)) {
+            const n = rolled.get(p.startChar)!
+            delayS = n * ROLL_GAP_S
+            rolled.set(p.startChar, n + 1)
+          }
+          latest.current.onNoteOn?.(p.pitch, Math.max(0.1, durS - delayS), p.volume / 127, delayS)
         }
         return undefined
       },
