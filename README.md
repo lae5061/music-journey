@@ -17,6 +17,10 @@ npm run build    # typecheck + production build into dist/
 npm run preview  # serve the built app
 ```
 
+Pushing to `main` builds and publishes the site to GitHub Pages through
+`.github/workflows/deploy.yml`. The one-time setup is Settings → Pages → Source:
+"GitHub Actions". Hash routes mean every lesson URL works there without server rewrites.
+
 ## The course
 
 | Unit | | Lessons |
