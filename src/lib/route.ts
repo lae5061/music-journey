@@ -13,6 +13,7 @@ import { isGameId, type GameId } from '../data/games'
  *   #/lesson/2.03/4       lesson 2.03, step 4
  *   #/games               the practice games
  *   #/games/sight-reading one game, and #/games/sight-reading/stream one part of it
+ *   #/pieces              the sheet music; #/pieces/depot-boogie one piece; #/pieces/add the form
  *
  * Hash routes rather than paths because the app is static files with no server to
  * rewrite /lesson/2.03 back to index.html.
@@ -22,6 +23,7 @@ export type Route =
   | { screen: 'curriculum' }
   | { screen: 'lesson'; at: LessonRef; step: number }
   | { screen: 'games'; game: GameId | null; part: string | null }
+  | { screen: 'pieces'; piece: string | null }
 
 export type Screen = Route['screen']
 
@@ -37,6 +39,8 @@ export const curriculumHref = '#/curriculum'
 export const resumeHref = '#/lesson'
 export const gamesHref = '#/games'
 export const gameHref = (game: GameId, part?: string) => (part ? `#/games/${game}/${part}` : `#/games/${game}`)
+export const piecesHref = '#/pieces'
+export const pieceHref = (id: string) => `#/pieces/${id}`
 
 export const lessonHref = (ref: LessonRef, step = 0) =>
   step > 0 ? `#/lesson/${lessonLabel(ref)}/${step + 1}` : `#/lesson/${lessonLabel(ref)}`
@@ -51,6 +55,8 @@ export function formatRoute(route: Route): string {
       return lessonHref(route.at, route.step)
     case 'games':
       return route.game ? gameHref(route.game, route.part ?? undefined) : gamesHref
+    case 'pieces':
+      return route.piece ? pieceHref(route.piece) : piecesHref
   }
 }
 
@@ -76,6 +82,9 @@ export function parseRoute(hash: string, saved: Position): Route {
   if (head === 'games' && rest.length === 0) {
     if (address === undefined || !isGameId(address)) return { screen: 'games', game: null, part: null }
     return { screen: 'games', game: address, part: stepText ?? null }
+  }
+  if (head === 'pieces' && stepText === undefined && rest.length === 0) {
+    return { screen: 'pieces', piece: address || null }
   }
   if (head !== 'lesson' || rest.length > 0) return { screen: 'landing' }
   if (address === undefined) return { screen: 'lesson', ...saved }

@@ -57,7 +57,7 @@ function audioContext(): AudioContext | null {
 /** True once the browser has let us start making sound. */
 export const audioReady = () => ctx !== null && ctx.state === 'running'
 
-interface Sounded {
+export interface Sounded {
   stop(): void
 }
 
@@ -145,12 +145,24 @@ function click(c: AudioContext, at: number, accented: boolean): Ticking {
   }
 }
 
-/** Sound one note immediately — a learner tapping a key. */
-export function playNote(midi: number, timbre: Timbre, duration = 1.2, velocity = 0.8) {
+/** Sound one note immediately — a learner tapping a key. Returns a handle to cut it short. */
+export function playNote(midi: number, timbre: Timbre, duration = 1.2, velocity = 0.8): Sounded {
   const c = audioContext()
-  if (!c) return
-  strike(c, midi, c.currentTime, duration, velocity, timbre)
+  if (!c) return { stop() {} }
+  return strike(c, midi, c.currentTime, duration, velocity, timbre)
 }
+
+/** One metronome tick now. */
+export function playClick(accented: boolean) {
+  const c = audioContext()
+  if (c) click(c, c.currentTime, accented)
+}
+
+/**
+ * Create or resume the audio context inside a tap or click. Browsers only let sound
+ * start from a gesture, and a score's notes fire from a timer, not from one.
+ */
+export const unlockAudio = () => void audioContext()
 
 /** A metronome on its own: `count` beats at `tempo`, the first of each bar accented. */
 export function playClicks(count: number, tempo: number, perBar = 4): Playback {

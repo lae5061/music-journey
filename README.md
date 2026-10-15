@@ -53,6 +53,23 @@ included), the notes in spaces, or all of them. All three ask for the note's nam
 so the board is the same three octaves at every level and a typed letter always lands.
 Best scores are kept per level and mode in `localStorage`.
 
+## Pieces
+
+A Pieces tab plays real music from the score. Pieces are **ABC notation** text: a few
+lines a learner can type from a printed page, which matters because method-book pieces
+are copyrighted and cannot be shipped. The bundled piece is an original twelve-bar boogie;
+the learner adds their own with the Add-a-piece form (paste, type, or open an `.abc` file,
+with a cheat-sheet and a live preview) and they stay in `localStorage`.
+
+The score is drawn and timed by [abcjs](https://www.abcjs.net/), fetched the first time a
+piece is opened so the course bundle stays small. Sound and lights are Tonic's own: every
+note abcjs reports is struck on the app's synth and lights the on-screen key, and the
+playing notes are tinted on the page behind a moving cursor. The transport has play,
+pause and stop, a tempo slider from 40 to 150 percent of the written tempo that can be
+moved mid-piece, a both-right-left hands switch, a count-in and a click; clicking a bar
+in the progress track or a note in the score jumps there. On a phone the keyboard pins to
+the bottom and the score wraps two bars to a line.
+
 ## Playing it from a real keyboard
 
 The computer keyboard plays notes by letter: C D E F G A B, Shift for a sharp, Z and X
@@ -78,6 +95,7 @@ src/
     types.ts           what a step may contain
     units/*.ts         all course content — one file per unit
     games.ts           the games list
+    pieces.ts          the piece model and the bundled pieces/*.abc
   components/
     Piano.tsx          the keyboard: fits its container, never scrolls
     StepView.tsx       assembles a step from its parts
@@ -87,6 +105,7 @@ src/
     Quiz.tsx           the scored exercises
     Games.tsx          the games index
     games/             SightReading.tsx shell; Flash, Stream, Line modes
+    pieces/            index, player, transport, add form, ABC cheat-sheet
     ChordChart.tsx     lead sheets and chord grids
     Diagram.tsx        octave map, circle of fifths, hands, posture, note values, pedals
     notation/
@@ -99,8 +118,11 @@ src/
     keyboard.ts        key geometry, and choosing a range that fits
     notes.ts / pitch.ts  MIDI maths, and written pitch ("F#3")
     progress.ts        localStorage, reconciled against the current course
-    route.ts           hash routes: #/, #/curriculum, #/lesson/2.03/4, #/games/sight-reading/stream
+    route.ts           hash routes: #/, #/curriculum, #/lesson/2.03/4, #/games/…, #/pieces/…
     sightReading.ts    levels, note pools, melody generation, best scores
+    useScorePlayer.ts  a score that plays: abcjs render and clock, lights and sound
+    abc.ts             loading abcjs, voice lookup, the add-form skeleton
+    pieceStore.ts      the learner's own pieces, in localStorage
 ```
 
 Notes are MIDI numbers throughout — 60 is middle C.

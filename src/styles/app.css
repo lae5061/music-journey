@@ -631,3 +631,72 @@ button { font-family: inherit; white-space: nowrap; }
     background: var(--color-bg); padding-top: var(--space-2);
   }
 }
+
+/* ── pieces ─────────────────────────────────────────────────────────────── */
+
+.piece-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); }
+.piece-head .curriculum-lede { margin-bottom: var(--space-4); }
+.pieces-mine { margin-top: var(--space-8); font-size: 25px; }
+.pieces-add { border-style: dashed; }
+
+.score-board { gap: var(--space-3); }
+.transport { display: flex; flex-direction: column; gap: var(--space-3); }
+.transport-bar { font-family: var(--font-heading); font-weight: 800; font-size: 15px; white-space: nowrap; }
+.transport-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-4) var(--space-6); }
+.transport-tempo { display: flex; flex-direction: column; gap: var(--space-1); min-width: 240px; }
+.transport-tempo .kicker { margin: 0; }
+.transport-tempo-value { font-family: var(--font-heading); font-weight: 800; font-size: 15px; }
+.transport-tempo-input { display: flex; align-items: center; gap: var(--space-1); }
+.transport-tempo-input input[type='range'] { flex: 1; accent-color: var(--color-accent); min-width: 120px; }
+.transport-tempo-input .btn-ghost { padding-inline: var(--space-2); font-size: 18px; line-height: 1; }
+.transport-checks { display: flex; gap: var(--space-4); padding-bottom: var(--space-2); }
+.transport-checks label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+.transport-bars .progress-seg { border: 0; padding: 0; cursor: pointer; }
+
+/* The score itself: abcjs's SVG, recoloured to the system's ink and accent. */
+/* A flex item's own minimum is its content, so min-height: 0 lets the cap below bite. */
+.score { background: var(--color-bg); padding: var(--space-3); overflow: auto; min-height: 0; }
+.score svg { display: block; max-width: 100%; }
+.score .abcjs-container { margin: 0 auto; }
+.score .abcjs-title, .score .abcjs-composer, .score .abcjs-tempo { display: none; }
+.score path, .score text { fill: var(--color-text); }
+.score .abcjs-staff path, .score .abcjs-bar path, .score .abcjs-stem path { stroke: var(--color-text); }
+.score .abcjs-voice-name { font-family: var(--font-body); font-size: 11px; }
+.score .is-playing path, .score .is-playing { fill: var(--color-accent); }
+.score .score-cursor { stroke: var(--color-accent); stroke-width: 2; }
+.score.hands-right .abcjs-v1, .score.hands-left .abcjs-v0 { opacity: 0.3; }
+
+/* The add form: text on the left, the preview on the right. */
+.abc-editor { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.3fr); gap: var(--space-6); }
+.abc-editor-text, .abc-editor-preview { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.abc-text {
+  width: 100%; min-height: 320px; resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; line-height: 1.5;
+  padding: var(--space-3); border: 1px solid var(--color-divider); background: var(--color-neutral-100); color: inherit;
+}
+.abc-open { position: relative; overflow: hidden; }
+.abc-open input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.abc-level { flex-direction: row; align-items: center; gap: var(--space-2); }
+.abc-level .unit-switch { min-width: 0; }
+.abc-cheat { font-size: 14px; border-top: 1px solid var(--color-divider); padding-top: var(--space-2); }
+.abc-cheat summary { cursor: pointer; font-weight: 600; }
+.abc-cheat dl { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-2) var(--space-4); margin: var(--space-3) 0 0; }
+.abc-cheat dt { font-weight: 600; }
+.abc-cheat dd { margin: 0; }
+.abc-cheat code { background: var(--color-surface); padding: 0 4px; font-size: 12px; }
+.score-preview { min-height: 120px; }
+
+@media (max-width: 860px) {
+  .abc-editor { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .score { max-height: 42vh; }
+  .transport-tempo { min-width: 0; width: 100%; }
+  .piece-head { flex-direction: column; }
+}
+
+/* Five links no longer fit a phone's header; the brand already goes home, so Overview goes. */
+@media (max-width: 520px) {
+  .site-header { gap: var(--space-3); }
+  .site-header a[href='#/']:not(.nav-brand) { display: none; }
+}

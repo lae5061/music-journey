@@ -5,6 +5,7 @@ import { Games } from './components/Games'
 import { Landing } from './components/Landing'
 import { Lesson } from './components/Lesson'
 import { MidiContext } from './components/MidiControl'
+import { Pieces } from './components/pieces/Pieces'
 import {
   FIRST_LESSON,
   getLesson,
@@ -81,7 +82,9 @@ export default function App() {
           ? 'Curriculum · Tonic'
           : route.screen === 'games'
             ? 'Games · Tonic'
-            : `${lessonLabel(route.at)} ${getLesson(route.at).title} · Tonic`
+            : route.screen === 'pieces'
+              ? 'Pieces · Tonic'
+              : `${lessonLabel(route.at)} ${getLesson(route.at).title} · Tonic`
   }, [route])
 
   const openLesson = useCallback((ref: LessonRef) => navigate(lessonHref(ref)), [navigate])
@@ -142,6 +145,10 @@ export default function App() {
             gameInput.current = fn
           }}
         />
+      )}
+
+      {route.screen === 'pieces' && (
+        <Pieces piece={route.piece} pressed={pressed} onPressKey={pressKey} onHoldKey={holdKey} />
       )}
 
       {here && (
