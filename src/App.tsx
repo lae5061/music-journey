@@ -37,6 +37,9 @@ export default function App() {
       holdKey(note.midi, false)
     }
   })
+  const registerInput = useCallback((fn: ((midi: number) => void) | null) => {
+    gameInput.current = fn
+  }, [])
   const midiState = useMemo(
     () => ({ ...midi, sound: midiSound, setSound: setMidiSound }),
     [midi, midiSound],
@@ -141,14 +144,18 @@ export default function App() {
           part={route.part}
           pressed={pressed}
           onPressKey={pressKey}
-          onRegisterInput={(fn) => {
-            gameInput.current = fn
-          }}
+          onRegisterInput={registerInput}
         />
       )}
 
       {route.screen === 'pieces' && (
-        <Pieces piece={route.piece} pressed={pressed} onPressKey={pressKey} onHoldKey={holdKey} />
+        <Pieces
+          piece={route.piece}
+          pressed={pressed}
+          onPressKey={pressKey}
+          onHoldKey={holdKey}
+          onRegisterInput={registerInput}
+        />
       )}
 
       {here && (

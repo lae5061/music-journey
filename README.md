@@ -65,8 +65,21 @@ Best scores are kept per level and mode in `localStorage`.
 A Pieces tab plays real music from the score. Pieces are **ABC notation** text: a few
 lines a learner can type from a printed page, which matters because method-book pieces
 are copyrighted and cannot be shipped. The bundled piece is an original twelve-bar boogie;
-the learner adds their own with the Add-a-piece form (paste, type, or open an `.abc` file,
-with a cheat-sheet and a live preview) and they stay in `localStorage`.
+the learner adds their own and they stay in `localStorage`.
+
+**Add a piece** is a score editor. Pick a length in the palette, then enter pitches by
+tapping the on-screen keys, typing C to B, playing MIDI, or clicking a line or space on
+the staff, where a ghost notehead shows what a click would place. Bar lines appear by
+themselves from the time signature, and a note too long for its bar is written as tied
+pieces. Click a note to select it: arrows move it, Delete removes it, and the palette
+sets its accidental, tie, slur, dynamics, hairpins, fingering, breath mark or roll;
+bar-line buttons set double, final and repeat bars. Undo and redo throughout. The editor
+keeps a small model (`src/lib/score/model.ts`) and writes ABC from it
+(`serialize.ts`); a Text tab shows that ABC for hand edits, re-read into the model on
+return (`parse.ts`) when it stays within what the editor can draw, and kept as text
+otherwise. abcjs draws the score; the cursor, ghost note and selection are laid over
+its SVG, and the staff geometry it leaves behind turns a click into a pitch
+(`useStaffHit.ts`).
 
 The score is drawn and timed by [abcjs](https://www.abcjs.net/), fetched the first time a
 piece is opened so the course bundle stays small. Sound and lights are Tonic's own: every
@@ -112,7 +125,8 @@ src/
     Quiz.tsx           the scored exercises
     Games.tsx          the games index
     games/             SightReading.tsx shell; Flash, Stream, Line modes
-    pieces/            index, player, transport, add form, ABC cheat-sheet
+    pieces/            index, player, transport, add form (the score editor), cheat-sheet
+    pieces/editor/     ScoreEditor shell, Palette, HeaderFields, ScoreCanvas, AbcTab
     ChordChart.tsx     lead sheets and chord grids
     Diagram.tsx        octave map, circle of fifths, hands, posture, note values, pedals
     notation/
@@ -130,6 +144,7 @@ src/
     useScorePlayer.ts  a score that plays: abcjs render and clock, lights and sound
     abc.ts             loading abcjs, voice lookup, the add-form skeleton
     pieceStore.ts      the learner's own pieces, in localStorage
+    score/             the editor: model, serialize, parse, edit, reducer, staff hit-testing
 ```
 
 Notes are MIDI numbers throughout — 60 is middle C.

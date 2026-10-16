@@ -10,10 +10,11 @@ interface PiecesProps {
   pressed: ReadonlySet<number>
   onPressKey: (midi: number) => void
   onHoldKey: (midi: number, on: boolean) => void
+  onRegisterInput: (fn: ((midi: number) => void) | null) => void
 }
 
 /** The Pieces screen: the index, one piece, or the add form. */
-export function Pieces({ piece, pressed, onPressKey, onHoldKey }: PiecesProps) {
+export function Pieces({ piece, pressed, onPressKey, onHoldKey, onRegisterInput }: PiecesProps) {
   const { all, mine, find, save, remove } = usePieces()
 
   if (piece === null) return <PiecesIndex all={all} mine={mine} />
@@ -28,6 +29,10 @@ export function Pieces({ piece, pressed, onPressKey, onHoldKey }: PiecesProps) {
         editing={editing?.source === 'mine' ? editing : undefined}
         onSave={save}
         onDelete={remove}
+        pressed={pressed}
+        onPressKey={onPressKey}
+        onHoldKey={onHoldKey}
+        onRegisterInput={onRegisterInput}
       />
     )
   }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
-import type { NoteTimingEvent, TimingCallbacks, TuneObject } from 'abcjs'
+import type { ClickListener, NoteTimingEvent, TimingCallbacks, TuneObject } from 'abcjs'
 import { handPlays, loadAbcjs, voiceByChar, type Abcjs, type Hands } from './abc'
 
 /**
@@ -24,6 +24,11 @@ export interface ScorePlayerOptions {
   onNoteOn?: (midi: number, durationS: number, velocity: number, delayS: number) => void
   onBeat?: (beatInBar: number, perBar: number, countingIn: boolean) => void
   onFinish?: () => void
+  /** The score editor's hooks: its own click handling, selectable types, dragging, and a look at the drawn tune. */
+  clickListener?: ClickListener
+  selectTypes?: boolean | string[]
+  dragging?: boolean
+  onRendered?: (tune: TuneObject, svg: SVGSVGElement) => void
 }
 
 export interface ScorePlayer {
@@ -66,6 +71,10 @@ export function useScorePlayer({
   onNoteOn,
   onBeat,
   onFinish,
+  clickListener,
+  selectTypes,
+  dragging,
+  onRendered,
 }: ScorePlayerOptions): ScorePlayer {
   const [lib, setLib] = useState<Abcjs | null>(null)
   const [status, setStatus] = useState<PlayerStatus>('loading')
@@ -87,8 +96,8 @@ export function useScorePlayer({
   const offsetRef = useRef(0)
 
   // Callbacks change identity every render; the timer must always see the latest.
-  const latest = useRef({ onNoteOn, onBeat, onFinish, hands })
-  latest.current = { onNoteOn, onBeat, onFinish, hands }
+  const latest = useRef({ onNoteOn, onBeat, onFinish, hands, clickListener, onRendered })
+  latest.current = { onNoteOn, onBeat, onFinish, hands, clickListener, onRendered }
 
   const setStatusBoth = (s: PlayerStatus) => {
     statusRef.current = s
@@ -149,8 +158,14 @@ export function useScorePlayer({
         paddingright: 0,
         paddingtop: 0,
         paddingbottom: 0,
-        clickListener: (el) => {
-          const ms = (el as { currentTrackMilliseconds?: number | number[] }).currentTrackMilliseconds
+        selectTypes: selectTypes as never,
+        dragging,
+        clickListener: (...args) => {
+          if (latest.current.clickListener) {
+            latest.current.clickListener(...args)
+            return
+          }
+          const ms = (args[0] as { currentTrackMilliseconds?: number | number[] }).currentTrackMilliseconds
           const at = Array.isArray(ms) ? ms[0] : ms
           if (typeof at === 'number' && timer.current) timer.current.setProgress(at / 1000, 'seconds')
         },
@@ -172,6 +187,7 @@ export function useScorePlayer({
         line.setAttribute('opacity', '0')
         svg.appendChild(line)
         cursor.current = line
+        latest.current.onRendered?.(first, svg)
       }
       setStatusBoth('ready')
       setBar(1)
@@ -181,7 +197,7 @@ export function useScorePlayer({
       setStatusBoth('error')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lib, abc, narrow])
+  }, [lib, abc, narrow, selectTypes, dragging])
 
   // ── timing ────────────────────────────────────────────────────────────────
   useEffect(() => {
