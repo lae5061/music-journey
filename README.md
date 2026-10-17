@@ -71,8 +71,8 @@ the learner adds their own and they stay in `localStorage`.
 tapping the on-screen keys, typing C to B, playing MIDI, or clicking a line or space on
 the staff, where a ghost notehead shows what a click would place. Bar lines appear by
 themselves from the time signature, and a note too long for its bar is written as tied
-pieces. Click a note to select it: arrows move it, Delete removes it, and the palette
-sets its accidental, tie, slur, dynamics, hairpins, fingering, breath mark or roll;
+pieces. Click a note to select it: a new pitch replaces it and the selection moves on, arrows
+move it, Delete removes it, and the palette sets its accidental, tie, slur, dynamics, hairpins, fingering, breath mark or roll;
 bar-line buttons set double, final and repeat bars. Undo and redo throughout. The editor
 keeps a small model (`src/lib/score/model.ts`) and writes ABC from it
 (`serialize.ts`); a Text tab shows that ABC for hand edits, re-read into the model on

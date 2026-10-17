@@ -174,6 +174,19 @@ export function reduce(state: EditorState, action: Action): EditorState {
         const { voice, index } = state.selected
         return commit(state, updateNote(state.score, voice, index, (n) => addPitch(n, action.pitch)))
       }
+      // With a note selected, a new pitch replaces it and the selection moves on, so a
+      // run of wrong notes can be corrected one after another.
+      if (state.selected) {
+        const { voice, index } = state.selected
+        const events = state.score.voices[voice].events
+        const score = updateEvent(state.score, voice, index, (e) =>
+          e.kind === 'note'
+            ? { ...e, pitches: [action.pitch] }
+            : { kind: 'note', pitches: [action.pitch], length: e.length, dotted: e.dotted, decorations: e.decorations },
+        )
+        const next = index + 1 < events.length ? { voice, index: index + 1 } : null
+        return commit(state, score, { selected: next, cursors: withCursor(state.cursors, voice, index + 1 + (next ? 1 : 0)) })
+      }
       return insertAtCursor(state, makeNote(action.pitch, state.length, state.dotted))
     }
     case 'insertRest':

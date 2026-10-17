@@ -136,7 +136,7 @@ export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, on
     : state.chordMode && state.selected
       ? 'Chord: each pitch you enter stacks onto the selected note.'
       : state.selected
-        ? 'Selected. Arrows move it, Delete removes it, the palette changes it; a new pitch goes in after it.'
+        ? 'Selected. A new pitch replaces it, arrows move it, Delete removes it, the palette changes it. Esc to go back to adding.'
         : `${state.hand === 0 ? 'Right' : 'Left'} hand. Tap a key, type C to B, play MIDI, or click a line or space.`
 
   return (
