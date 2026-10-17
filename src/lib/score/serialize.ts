@@ -175,6 +175,8 @@ export function serialize(
   const [n, d] = score.meter
 
   const lines: string[] = ['X:1']
+  // Rendering only: no tempo mark above the staff. Saved pieces leave layout to the player.
+  if (!titles) lines.push('%%printtempo false')
   if (titles && score.title) lines.push(`T:${score.title}`)
   if (titles && score.composer) lines.push(`C:${score.composer}`)
   lines.push(`M:${n}/${d}`, 'L:1/8', d === 8 ? `Q:3/8=${score.bpm}` : `Q:1/4=${score.bpm}`)

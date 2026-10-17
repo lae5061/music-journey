@@ -52,6 +52,8 @@ export interface ScorePlayer {
 }
 
 const CURSOR_CLASS = 'score-cursor'
+/** abcjs prints the tempo above the first staff; the page shows it itself, so the mark and its space go. */
+export const NO_TEMPO_MARK = '%%printtempo false'
 /** How far apart the notes of a rolled chord strike, bottom to top. */
 const ROLL_GAP_S = 0.045
 const PLAYING_CLASS = 'is-playing'
@@ -151,7 +153,10 @@ export function useScorePlayer({
     try {
       // The page shows the title itself; the score keeps only the music.
       // (A blank line would end the tune, so the whole line goes, newline included.)
-      const music = abc.replace(/^[TC]:.*(\r?\n|$)/gm, '')
+      let music = abc.replace(/^[TC]:.*(\r?\n|$)/gm, '')
+      // The editor's text already carries the directive; adding it there would shift the
+      // character positions its spans rely on.
+      if (!music.includes(NO_TEMPO_MARK)) music = `${NO_TEMPO_MARK}\n${music}`
       const [first] = lib.renderAbc(box, music, {
         add_classes: true,
         responsive: 'resize',
@@ -160,7 +165,7 @@ export function useScorePlayer({
         paddingleft: 0,
         paddingright: 0,
         paddingtop: 0,
-        paddingbottom: 0,
+        paddingbottom: 10,
         selectTypes: selectTypes as never,
         dragging,
         clickListener: (...args) => {

@@ -774,7 +774,7 @@ button { font-family: inherit; white-space: nowrap; }
   transform: translateX(-50%) rotate(45deg);
 }
 .note-tools {
-  position: relative; display: flex; flex-direction: column; gap: 6px; padding: var(--space-2) 36px var(--space-2) var(--space-2);
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: var(--space-2) 36px var(--space-2) var(--space-2);
   background: var(--color-surface); border: 1px solid var(--color-divider); box-shadow: var(--shadow-md);
 }
 .note-tools-close {
@@ -786,10 +786,13 @@ button { font-family: inherit; white-space: nowrap; }
 .note-tools-trash { padding-inline: 10px; }
 .note-tools-trash svg { display: block; }
 .note-tools-trash:hover { color: var(--color-accent); }
-.note-tools-row { display: flex; flex-wrap: nowrap; gap: var(--space-2); }
-.note-tools .game-segment { flex: none; padding: 6px 12px; min-height: 34px; min-width: 36px; font-size: 13px; white-space: nowrap; }
+.note-tools-row { display: flex; flex-wrap: nowrap; justify-content: center; gap: var(--space-2); }
+.note-tools .game-segment {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0 12px; height: 34px; min-width: 36px; font-size: 13px; line-height: 1; white-space: nowrap;
+}
 .note-tools .score-dyn { min-width: 40px; }
-.note-tools .score-glyph { font-size: 17px; padding: 3px 0; }
+.note-tools .score-glyph { font-size: 17px; padding: 0; line-height: 1; }
 /* On a phone the popover is a sheet across the score, rows wrapping. */
 .note-pop--sheet { left: 0; right: 0; transform: translateY(calc(-100% - 10px)); }
 .note-pop--sheet::after { display: none; }
