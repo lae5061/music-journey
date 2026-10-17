@@ -160,12 +160,17 @@ function barLine(score: Score, i: number, lastBar: number): string {
   }
 }
 
-export function serialize(score: Score, { titles = true }: { titles?: boolean } = {}): { text: string; spans: Span[] } {
+export function serialize(
+  score: Score,
+  { titles = true, wholeSystems = false }: { titles?: boolean; wholeSystems?: boolean } = {},
+): { text: string; spans: Span[] } {
   const perBar = barBeats(score.meter)
-  const bars = Math.max(
+  const written = Math.max(
     1,
     ...score.voices.map((v) => Math.ceil(v.events.reduce((s, e) => s + beats(e), 0) / perBar - 1e-9)),
   )
+  // The editor shows whole lines of bars, the unwritten ones as rests to click into.
+  const bars = wholeSystems ? Math.max(SYSTEM_BARS, Math.ceil(written / SYSTEM_BARS) * SYSTEM_BARS) : written
   const voices = score.voices.map((voice, v) => voiceBars(score, voice, v, bars))
   const [n, d] = score.meter
 

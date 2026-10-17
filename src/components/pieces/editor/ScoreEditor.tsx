@@ -34,7 +34,7 @@ const BOARD_FOCUS = [60, 72]
 export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, onRegisterInput, controls, details }: ScoreEditorProps) {
   const { state, actions, enterMidi } = editor
   const narrow = useMediaQuery(NARROW)
-  const { text, spans } = useMemo(() => serialize(state.score, { titles: false }), [state.score])
+  const { text, spans } = useMemo(() => serialize(state.score, { titles: false, wholeSystems: true }), [state.score])
   const sound = useScoreSound(onHoldKey)
   // The player object changes every render; keep it in a ref and only its status in state.
   const playerRef = useRef<ScorePlayer | null>(null)
@@ -134,7 +134,7 @@ export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, on
     : state.chordMode && state.selected
       ? 'Chord: each new pitch stacks onto this note.'
       : state.selected
-        ? 'A new pitch replaces this note; arrows nudge it.'
+        ? 'A new pitch replaces this note; arrows nudge it; the tools beside it do the rest.'
         : state.chordMode
           ? 'Chord: enter a note, then more pitches stack onto it.'
           : 'Tap a key or click the staff to add a note.'
@@ -142,7 +142,28 @@ export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, on
   return (
     <>
       <div className="game-board score-board score-editor">
-        <HeaderFields score={state.score} actions={actions} extra={details} />
+        <div className="score-head">
+          <HeaderFields score={state.score} actions={actions} extra={details} />
+          <HelpToggle label="Keyboard shortcuts and MIDI">
+            <p className="game-keys">{typingHint(octave)}</p>
+            <dl className="help-keys">
+              <dt>1 2 4 8</dt><dd>whole, half, quarter, eighth</dd>
+              <dt>.</dt><dd>dotted</dd>
+              <dt>R</dt><dd>a rest</dd>
+              <dt>H</dt><dd>switch hand</dd>
+              <dt>K</dt><dd>chord mode</dd>
+              <dt>← →</dt><dd>select the previous or next note</dd>
+              <dt>↑ ↓</dt><dd>nudge the selected note a step; with Shift, a semitone</dd>
+              <dt>S</dt><dd>slur from the selected note</dd>
+              <dt>-</dt><dd>tie the selected note</dd>
+              <dt>Delete</dt><dd>remove the selected note; Backspace takes back the last one</dd>
+              <dt>Esc</dt><dd>back to adding</dd>
+              <dt>⌘Z ⇧⌘Z</dt><dd>undo, redo</dd>
+              <dt>Space</dt><dd>hear it, pause</dd>
+            </dl>
+            <MidiControl />
+          </HelpToggle>
+        </div>
         <Palette state={state} actions={actions} />
         <p className={`game-message${state.pending ? ' is-wrong' : ''}`} aria-live="polite">
           {hint}
@@ -166,27 +187,6 @@ export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, on
         </ScoreCanvas>
       </div>
       <Piano range={range} focus={BOARD_FOCUS} highlight={highlight} pressed={pressed} onPress={play} label="Keyboard — enter a note" />
-      <div className="help-row">
-        <HelpToggle label="Keyboard shortcuts and MIDI">
-          <p className="game-keys">{typingHint(octave)}</p>
-          <dl className="help-keys">
-            <dt>1 2 4 8</dt><dd>whole, half, quarter, eighth</dd>
-            <dt>.</dt><dd>dotted</dd>
-            <dt>R</dt><dd>a rest</dd>
-            <dt>H</dt><dd>switch hand</dd>
-            <dt>K</dt><dd>chord mode</dd>
-            <dt>← →</dt><dd>select the previous or next note</dd>
-            <dt>↑ ↓</dt><dd>nudge the selected note a step; with Shift, a semitone</dd>
-            <dt>S</dt><dd>slur from the selected note</dd>
-            <dt>-</dt><dd>tie the selected note</dd>
-            <dt>Delete</dt><dd>remove the selected note; Backspace takes back the last one</dd>
-            <dt>Esc</dt><dd>back to adding</dd>
-            <dt>⌘Z ⇧⌘Z</dt><dd>undo, redo</dd>
-            <dt>Space</dt><dd>hear it, pause</dd>
-          </dl>
-          <MidiControl />
-        </HelpToggle>
-      </div>
     </>
   )
 }

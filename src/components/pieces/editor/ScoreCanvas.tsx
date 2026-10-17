@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, type PointerEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import type { ClickListener, TuneObject } from 'abcjs'
 import { type Span, eventNear } from '../../../lib/score/serialize'
 import type { EditorState, useScoreEditor } from '../../../lib/score/useScoreEditor'
 import { findDrawn, groupsOf, hitTest, isNoteOrRest, staffBottom, staffTop, STEP, type DrawnChild } from '../../../lib/score/useStaffHit'
 import { useScorePlayer, type ScorePlayer } from '../../../lib/useScorePlayer'
+import { NoteTools } from './NoteTools'
 
 type Actions = ReturnType<typeof useScoreEditor>['actions']
 
@@ -35,6 +36,10 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
   const cursor = useRef<SVGLineElement | null>(null)
   const ghost = useRef<SVGGElement | null>(null)
   const selectedEls = useRef<Element[]>([])
+  const scoreBox = useRef<HTMLDivElement>(null)
+  const frame = useRef<HTMLDivElement>(null)
+  // Where the selected note's popover sits, relative to the frame around the score box.
+  const [pop, setPop] = useState<{ x: number; y: number } | null>(null)
   const latest = useRef({ state, actions, spans })
   latest.current = { state, actions, spans }
 
@@ -74,6 +79,7 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
     line.setAttribute('y1', String(staffTop(staff) - 2 * STEP))
     line.setAttribute('y2', String(staffBottom(staff) + 2 * STEP))
     line.setAttribute('opacity', '1')
+    let next: { x: number; y: number } | null = null
     if (s.selected) {
       const found = findDrawn(t, sp, s.selected.voice, s.selected.index)
       for (const el of found?.child.elemset ?? []) {
@@ -81,7 +87,15 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
         selectedEls.current.push(el)
       }
       drawn = found?.child ?? drawn
+      const el = found?.child.elemset?.[0] as Element | undefined
+      const f = frame.current
+      if (el && f) {
+        const r = el.getBoundingClientRect()
+        const b = f.getBoundingClientRect()
+        next = { x: Math.round(r.left + r.width / 2 - b.left), y: Math.round(r.top - b.top) }
+      }
     }
+    setPop((prev) => (prev?.x === next?.x && prev?.y === next?.y ? prev : next))
     const anchor = drawn?.elemset?.[0]
     if (anchor && 'scrollIntoView' in anchor) (anchor as HTMLElement).scrollIntoView({ block: 'nearest', inline: 'nearest' })
   }, [])
@@ -149,10 +163,19 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
     selectTypes: SELECTABLE,
     dragging: true,
     onRendered,
+    stretch: true,
   })
 
   useEffect(() => onPlayer(player), [player, onPlayer])
   useEffect(() => sync(), [state.cursors, state.selected, state.hand, sync])
+  // The popover follows the note when the score box scrolls.
+  useEffect(() => {
+    const box = scoreBox.current
+    if (!box) return
+    const onScroll = () => sync()
+    box.addEventListener('scroll', onScroll)
+    return () => box.removeEventListener('scroll', onScroll)
+  }, [sync])
 
   const hideGhost = () => ghost.current?.setAttribute('opacity', '0')
 
@@ -191,14 +214,21 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
 
   return (
     <>
-      <div className="score score-edit">
-        <div
-          className="score-paper"
-          ref={box}
-          onPointerMove={onPointerMove}
-          onPointerLeave={hideGhost}
-          onPointerDown={onPointerDown}
-        />
+      <div className="score-frame" ref={frame}>
+        <div className="score score-edit" ref={scoreBox}>
+          <div
+            className="score-paper"
+            ref={box}
+            onPointerMove={onPointerMove}
+            onPointerLeave={hideGhost}
+            onPointerDown={onPointerDown}
+          />
+        </div>
+        {pop && state.selected && (
+          <div className={`note-pop${narrow ? ' note-pop--sheet' : ''}`} style={narrow ? { top: pop.y } : { left: pop.x, top: pop.y }}>
+            <NoteTools state={state} actions={actions} />
+          </div>
+        )}
       </div>
       {children}
     </>

@@ -29,6 +29,8 @@ export interface ScorePlayerOptions {
   selectTypes?: boolean | string[]
   dragging?: boolean
   onRendered?: (tune: TuneObject, svg: SVGSVGElement) => void
+  /** Let a short last line stretch to the full width, as the editor's lines of empty bars should. */
+  stretch?: boolean
 }
 
 export interface ScorePlayer {
@@ -75,6 +77,7 @@ export function useScorePlayer({
   selectTypes,
   dragging,
   onRendered,
+  stretch = false,
 }: ScorePlayerOptions): ScorePlayer {
   const [lib, setLib] = useState<Abcjs | null>(null)
   const [status, setStatus] = useState<PlayerStatus>('loading')
@@ -153,7 +156,7 @@ export function useScorePlayer({
         add_classes: true,
         responsive: 'resize',
         staffwidth: narrow ? 400 : 820,
-        wrap: { preferredMeasuresPerLine: narrow ? 2 : 4, minSpacing: 1.8, maxSpacing: 2.7 },
+        wrap: { preferredMeasuresPerLine: narrow ? 2 : 4, minSpacing: 1.8, maxSpacing: stretch ? 12 : 2.7 },
         paddingleft: 0,
         paddingright: 0,
         paddingtop: 0,
@@ -197,7 +200,7 @@ export function useScorePlayer({
       setStatusBoth('error')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lib, abc, narrow, selectTypes, dragging])
+  }, [lib, abc, narrow, selectTypes, dragging, stretch])
 
   // ── timing ────────────────────────────────────────────────────────────────
   useEffect(() => {
