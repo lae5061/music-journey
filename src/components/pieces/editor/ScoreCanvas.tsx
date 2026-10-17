@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import type { ClickListener, TuneObject } from 'abcjs'
 import { type Span, eventNear } from '../../../lib/score/serialize'
 import type { EditorState, useScoreEditor } from '../../../lib/score/useScoreEditor'
@@ -40,6 +40,18 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
   const frame = useRef<HTMLDivElement>(null)
   // Where the selected note's popover sits, relative to the frame around the score box.
   const [pop, setPop] = useState<{ x: number; y: number } | null>(null)
+  const popEl = useRef<HTMLDivElement>(null)
+
+  // Keep the popover inside the frame, with its arrow still on the note.
+  useLayoutEffect(() => {
+    const el = popEl.current
+    const f = frame.current
+    if (!el || !f || !pop || narrow) return
+    const w = el.offsetWidth
+    const left = Math.max(0, Math.min(f.clientWidth - w, pop.x - w / 2))
+    el.style.left = `${left}px`
+    el.style.setProperty('--arrow', `${Math.max(12, Math.min(w - 12, pop.x - left))}px`)
+  }, [pop, narrow])
   const latest = useRef({ state, actions, spans })
   latest.current = { state, actions, spans }
 
@@ -225,7 +237,7 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
           />
         </div>
         {pop && state.selected && (
-          <div className={`note-pop${narrow ? ' note-pop--sheet' : ''}`} style={narrow ? { top: pop.y } : { left: pop.x, top: pop.y }}>
+          <div ref={popEl} className={`note-pop${narrow ? ' note-pop--sheet' : ''}`} style={narrow ? { top: pop.y } : { left: pop.x, top: pop.y }}>
             <NoteTools state={state} actions={actions} />
           </div>
         )}

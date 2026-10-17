@@ -19,6 +19,9 @@ export function NoteTools({ state, actions }: { state: EditorState; actions: Act
 
   return (
     <div className="note-tools" role="toolbar" aria-label="Selected note">
+      <button type="button" className="note-tools-close" onClick={actions.cancelPending} aria-label="Close (Esc)" title="Close (Esc)">
+        ×
+      </button>
       <div className="note-tools-row">
         {note && (
           <div className="game-segmented" role="group" aria-label="Accidental">
@@ -56,8 +59,11 @@ export function NoteTools({ state, actions }: { state: EditorState; actions: Act
           {BAR_TYPES.map((b) => seg(false, () => actions.setBarType(b.value), b.mark, b.title, b.title))}
         </div>
         <div className="game-segmented">
-          {seg(false, actions.deleteSelected, 'Delete', 'Delete this note (Delete)')}
-          {seg(false, actions.cancelPending, 'Done', 'Back to adding (Esc)')}
+          <button type="button" className="game-segment note-tools-trash" onClick={actions.deleteSelected} aria-label="Delete this note" title="Delete this note (Delete)">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3.5 5.5h13M8 5.5V3.5h4v2M5.5 5.5l.8 11h7.4l.8-11M8.3 8.5v5.5M11.7 8.5v5.5" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
