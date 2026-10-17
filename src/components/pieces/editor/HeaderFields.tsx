@@ -1,15 +1,17 @@
+import type { ReactNode } from 'react'
 import { KEY_TITLES, METERS, type Score } from '../../../lib/score/model'
 import type { useScoreEditor } from '../../../lib/score/useScoreEditor'
 
 type Actions = ReturnType<typeof useScoreEditor>['actions']
 
 /** Title, composer, tempo, key, time and staves, folded on a phone. */
-export function HeaderFields({ score, actions, open }: { score: Score; actions: Actions; open: boolean }) {
+export function HeaderFields({ score, actions, extra }: { score: Score; actions: Actions; extra?: ReactNode }) {
   return (
-    <details className="score-fields" open={open}>
+    <details className="score-fields">
       <summary>
         <strong>{score.title || 'Untitled'}</strong>
         {score.composer ? ` · ${score.composer}` : ''} · {KEY_TITLES[score.key + 4]} · {score.meter[0]}/{score.meter[1]} · ♩ = {score.bpm}
+        <span className="score-fields-edit">Edit details</span>
       </summary>
       <div className="score-fields-grid">
         <label className="score-field score-field--wide">
@@ -59,6 +61,7 @@ export function HeaderFields({ score, actions, open }: { score: Score; actions: 
             <option value={1}>One</option>
           </select>
         </label>
+        {extra}
       </div>
     </details>
   )

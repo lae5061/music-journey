@@ -107,6 +107,19 @@ export function AddPiece({ editing, onSave, onDelete, pressed, onPressKey, onHol
     })
   }, [])
 
+  const levelSelect = (
+    <label className="score-field">
+      <span className="kicker">Level</span>
+      <select className="unit-switch" value={level} onChange={(e) => setLevel(e.target.value as PieceLevel)}>
+        {(Object.keys(LEVEL_LABEL) as PieceLevel[]).map((l) => (
+          <option key={l} value={l}>
+            {LEVEL_LABEL[l]}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+
   const controls = (
     <>
       <button type="button" className="btn btn-primary" onClick={save}>
@@ -126,9 +139,6 @@ export function AddPiece({ editing, onSave, onDelete, pressed, onPressKey, onHol
         <a href={piecesHref}>Pieces</a> · {editing ? 'Edit' : 'Add a piece'}
       </h6>
       <h1>{editing ? editing.title : 'Add a piece'}</h1>
-      <p className="curriculum-lede">
-        Build it on the staff, or type it as ABC. Either way it stays on this device, and you can hear it before you save.
-      </p>
 
       <div className="game-controls">
         <nav className="game-tabs" aria-label="Editor view">
@@ -139,31 +149,16 @@ export function AddPiece({ editing, onSave, onDelete, pressed, onPressKey, onHol
             Text
           </button>
         </nav>
-        <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          {tab === 'score' && editor.state.score.hands === 2 && (
-            <div className="game-level" role="group" aria-label="Hand">
-              <span className="kicker">Hand</span>
-              <div className="game-segmented">
-                <button type="button" className="game-segment" aria-pressed={editor.state.hand === 0} onClick={() => editor.actions.setHand(0)}>
-                  R.H.
-                </button>
-                <button type="button" className="game-segment" aria-pressed={editor.state.hand === 1} onClick={() => editor.actions.setHand(1)}>
-                  L.H.
-                </button>
-              </div>
-            </div>
-          )}
-          <label className="game-level">
-            <span className="kicker">Level</span>
-            <select className="unit-switch" value={level} onChange={(e) => setLevel(e.target.value as PieceLevel)}>
-              {(Object.keys(LEVEL_LABEL) as PieceLevel[]).map((l) => (
-                <option key={l} value={l}>
-                  {LEVEL_LABEL[l]}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+        {tab === 'score' && (
+          <div className="game-segmented">
+            <button type="button" className="game-segment" onClick={editor.actions.undo} disabled={editor.state.past.length === 0} title="Undo (⌘Z)">
+              Undo
+            </button>
+            <button type="button" className="game-segment" onClick={editor.actions.redo} disabled={editor.state.future.length === 0} title="Redo (⇧⌘Z)">
+              Redo
+            </button>
+          </div>
+        )}
       </div>
 
       {tab === 'score' ? (
@@ -175,9 +170,10 @@ export function AddPiece({ editing, onSave, onDelete, pressed, onPressKey, onHol
           onHoldKey={onHoldKey}
           onRegisterInput={onRegisterInput}
           controls={controls}
+          details={levelSelect}
         />
       ) : (
-        <TextMode text={text} onChange={setText} notice={notice} controls={controls} onHoldKey={onHoldKey} />
+        <TextMode text={text} onChange={setText} notice={notice} controls={<>{levelSelect}{controls}</>} onHoldKey={onHoldKey} />
       )}
     </main>
   )

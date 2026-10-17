@@ -23,13 +23,14 @@ interface ScoreEditorProps {
   onHoldKey: (midi: number, on: boolean) => void
   onRegisterInput: (fn: ((midi: number) => void) | null) => void
   controls: React.ReactNode
+  details?: React.ReactNode
 }
 
 const NARROW = '(max-width: 700px)'
 const BOARD_FOCUS = [60, 72]
 
 /** The Score tab: palette, header fields, the drawn score, and the keyboard that feeds it. */
-export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, onRegisterInput, controls }: ScoreEditorProps) {
+export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, onRegisterInput, controls, details }: ScoreEditorProps) {
   const { state, actions, enterMidi } = editor
   const narrow = useMediaQuery(NARROW)
   const { text, spans } = useMemo(() => serialize(state.score, { titles: false }), [state.score])
@@ -128,21 +129,19 @@ export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, on
   }, [state.selected, state.score])
 
   const hint = state.pending
-    ? state.pending.kind === 'slur'
-      ? 'Slur: click the note where it ends. Esc cancels.'
-      : state.pending.kind === 'cresc'
-        ? 'Crescendo: click the note where it ends. Esc cancels.'
-        : 'Diminuendo: click the note where it ends. Esc cancels.'
+    ? 'Click the note where it ends. Esc cancels.'
     : state.chordMode && state.selected
-      ? 'Chord: each pitch you enter stacks onto the selected note.'
+      ? 'Chord: each new pitch stacks onto this note.'
       : state.selected
-        ? 'Selected. A new pitch replaces it, arrows move it, Delete removes it, the palette changes it. Esc to go back to adding.'
-        : `${state.hand === 0 ? 'Right' : 'Left'} hand. Tap a key, type C to B, play MIDI, or click a line or space.`
+        ? 'A new pitch replaces this note; arrows nudge it.'
+        : state.chordMode
+          ? 'Chord: enter a note, then more pitches stack onto it.'
+          : 'Tap a key or click the staff to add a note.'
 
   return (
     <>
       <div className="game-board score-board score-editor">
-        <HeaderFields score={state.score} actions={actions} open={!narrow} />
+        <HeaderFields score={state.score} actions={actions} extra={details} />
         <Palette state={state} actions={actions} />
         <p className={`game-message${state.pending ? ' is-wrong' : ''}`} aria-live="polite">
           {hint}
@@ -166,7 +165,7 @@ export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, on
         </ScoreCanvas>
       </div>
       <Piano range={range} focus={BOARD_FOCUS} highlight={highlight} pressed={pressed} onPress={play} label="Keyboard — enter a note" />
-      <p className="game-keys">{typingHint(octave)} Keys 1 2 4 8 pick the length, R a rest, S a slur, Delete removes.</p>
+      <p className="game-keys">{typingHint(octave)} Then 1 2 4 8 for the length, R for a rest, Backspace to take one back.</p>
       <MidiControl />
     </>
   )

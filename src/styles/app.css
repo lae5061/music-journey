@@ -715,7 +715,10 @@ button { font-family: inherit; white-space: nowrap; }
 .game-tabs button[aria-current='page'] { color: var(--color-accent); border-bottom-color: var(--color-accent); }
 
 .score-editor { gap: var(--space-3); }
-.score-fields summary { cursor: pointer; font-size: 14px; }
+.score-fields summary { cursor: pointer; font-size: 14px; display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: baseline; list-style: none; }
+.score-fields summary::-webkit-details-marker { display: none; }
+.score-fields-edit { font-size: 12px; font-weight: 600; color: var(--color-accent-700); text-decoration: underline; text-underline-offset: 3px; }
+.score-fields[open] .score-fields-edit { display: none; }
 .score-fields-grid { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-4); align-items: flex-end; margin-top: var(--space-3); }
 .score-field { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
 .score-field--wide { flex: 2 1 200px; }
