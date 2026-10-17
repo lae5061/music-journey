@@ -23,8 +23,8 @@ export function Palette({ state, actions }: { state: EditorState; actions: Actio
           {l.title}
         </button>
       ))}
-      <button type="button" className="game-segment" aria-pressed={dotted} onClick={actions.toggleDot} aria-label="Dotted" title="Dotted (.)">
-        ·
+      <button type="button" className="game-segment" aria-pressed={dotted} onClick={actions.toggleDot} title="Dotted (.)">
+        Dot
       </button>
     </div>
   )
@@ -48,10 +48,10 @@ export function Palette({ state, actions }: { state: EditorState; actions: Actio
             Rest
           </button>
           <button type="button" className="game-segment" aria-pressed={state.armedAccidental === 1} onClick={() => actions.accidental(1)} aria-label="Next note sharp" title="Sharp for the next click">
-            ♯
+            <span className="score-glyph">♯</span>
           </button>
           <button type="button" className="game-segment" aria-pressed={state.armedAccidental === -1} onClick={() => actions.accidental(-1)} aria-label="Next note flat" title="Flat for the next click">
-            ♭
+            <span className="score-glyph">♭</span>
           </button>
           <button type="button" className="game-segment" aria-pressed={state.chordMode} onClick={actions.toggleChord} title="Chord (K)">
             Chord
@@ -70,9 +70,9 @@ export function Palette({ state, actions }: { state: EditorState; actions: Actio
       {note && (
         <>
           <div className="game-segmented" role="group" aria-label="Accidental">
-            <button type="button" className="game-segment" aria-pressed={alterOf(1)} onClick={() => actions.accidental(1)} aria-label="Sharp">♯</button>
-            <button type="button" className="game-segment" aria-pressed={alterOf(-1)} onClick={() => actions.accidental(-1)} aria-label="Flat">♭</button>
-            <button type="button" className="game-segment" aria-pressed={alterOf(0)} onClick={() => actions.accidental(0)} aria-label="Natural">♮</button>
+            <button type="button" className="game-segment" aria-pressed={alterOf(1)} onClick={() => actions.accidental(1)} aria-label="Sharp"><span className="score-glyph">♯</span></button>
+            <button type="button" className="game-segment" aria-pressed={alterOf(-1)} onClick={() => actions.accidental(-1)} aria-label="Flat"><span className="score-glyph">♭</span></button>
+            <button type="button" className="game-segment" aria-pressed={alterOf(0)} onClick={() => actions.accidental(0)} aria-label="Natural"><span className="score-glyph">♮</span></button>
           </div>
           <div className="game-segmented">
             <button type="button" className="game-segment" aria-pressed={!!note.tie} onClick={actions.toggleTie} title="Tie (-)">

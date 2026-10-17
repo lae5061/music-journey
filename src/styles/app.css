@@ -731,7 +731,9 @@ button { font-family: inherit; white-space: nowrap; }
 .score-field .unit-switch { min-width: 0; }
 
 .score-palette { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; }
-.score-palette .game-segment { min-width: 36px; }
+/* Each button takes its own word's width; sharing the group evenly clipped the longest. */
+.score-palette .game-segment { flex: none; min-width: 40px; white-space: nowrap; }
+.score-palette .score-glyph { font-size: 19px; line-height: 1; padding-top: 6px; padding-bottom: 6px; }
 .score-palette .game-segment:disabled { opacity: 0.4; cursor: default; }
 .score-palette .game-segment:disabled[aria-pressed='true'] { opacity: 0.7; }
 .score-palette-spacer { flex: 1; }
