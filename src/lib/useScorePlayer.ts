@@ -63,6 +63,21 @@ interface Pitch {
   volume: number
   duration: number
   startChar?: number
+  /** abcjs: 'tenuto' under a slur, 'staccato' with the dot, else plain. */
+  endType?: string
+}
+
+/** How much of a plain note sounds; the rest is the gap that makes a slur audible. */
+const PLAIN_HOLD = 0.82
+const MIN_GAP_S = 0.05
+const MAX_GAP_S = 0.18
+
+/** Seconds a note sounds, from its written length and how it is marked. */
+function sounding(durS: number, endType: string | undefined): number {
+  if (endType === 'tenuto') return durS
+  if (endType === 'staccato') return durS * 0.5
+  const gap = Math.min(MAX_GAP_S, Math.max(MIN_GAP_S, durS * (1 - PLAIN_HOLD)))
+  return Math.max(0.08, durS - gap)
 }
 
 export function useScorePlayer({
@@ -259,7 +274,7 @@ export function useScorePlayer({
             delayS = n * ROLL_GAP_S
             rolled.set(p.startChar, n + 1)
           }
-          latest.current.onNoteOn?.(p.pitch, Math.max(0.1, durS - delayS), p.volume / 127, delayS)
+          latest.current.onNoteOn?.(p.pitch, Math.max(0.1, sounding(durS, p.endType) - delayS), p.volume / 127, delayS)
         }
         return undefined
       },
