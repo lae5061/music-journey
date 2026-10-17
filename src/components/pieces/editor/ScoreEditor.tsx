@@ -129,7 +129,9 @@ export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, on
     return e?.kind === 'note' ? new Set(e.pitches.map(midiOf)) : undefined
   }, [state.selected, state.score])
 
-  const hint = state.pending
+  const hint = state.notice
+    ? state.notice
+    : state.pending
     ? 'Click the note where it ends. Esc cancels.'
     : state.chordMode && state.selected
       ? 'Chord: each new pitch stacks onto this note.'
@@ -165,7 +167,7 @@ export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, on
           </HelpToggle>
         </div>
         <Palette state={state} actions={actions} />
-        <p className={`game-message${state.pending ? ' is-wrong' : ''}`} aria-live="polite">
+        <p className={`game-message${state.pending || state.notice ? ' is-wrong' : ''}`} aria-live="polite">
           {hint}
         </p>
         <ScoreCanvas

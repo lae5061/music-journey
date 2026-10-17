@@ -56,6 +56,8 @@ export interface EditorState {
   selected: Selection | null
   pending: Pending
   armedAccidental: Alter | null
+  /** Why the last thing asked for could not be done, shown until the next action. */
+  notice: string | null
 }
 
 type Action =
@@ -100,6 +102,7 @@ export function initialState(score: Score = emptyScore(2)): EditorState {
     selected: null,
     pending: null,
     armedAccidental: null,
+    notice: null,
   }
 }
 
@@ -143,7 +146,9 @@ const selectionBar = (state: EditorState) => {
   return i > 0 ? barOf(state.score, state.hand, i - 1) : 0
 }
 
-export function reduce(state: EditorState, action: Action): EditorState {
+export function reduce(previous: EditorState, action: Action): EditorState {
+  // A notice lasts one action.
+  const state = previous.notice ? { ...previous, notice: null } : previous
   switch (action.type) {
     case 'setLength': {
       const next = { ...state, length: action.length }
@@ -297,18 +302,28 @@ export function reduce(state: EditorState, action: Action): EditorState {
       const pending = state.pending
       if (!pending) return state
       const { from } = pending
-      const { voice, index } = action.target
-      if (voice !== from.voice || index <= from.index) return { ...state, pending: null }
+      const { voice } = action.target
+      const what = pending.kind === 'slur' ? 'A slur' : 'A hairpin'
+      // Each hand is its own voice in ABC, and a slur or hairpin lives inside one voice.
+      if (voice !== from.voice) {
+        return { ...state, notice: `${what} cannot cross from one hand to the other; pick a note in the same hand, or press Esc.` }
+      }
+      if (action.target.index === from.index) {
+        return { ...state, notice: `${what} needs two different notes; pick the note where it ends.` }
+      }
+      // Chosen back to front is fine: it runs from the earlier note to the later one.
+      const a = Math.min(from.index, action.target.index)
+      const b = Math.max(from.index, action.target.index)
       let score = state.score
       if (pending.kind === 'slur') {
-        score = updateNote(score, voice, from.index, (n) => ({ ...n, slurStart: true }))
-        score = updateNote(score, voice, index, (n) => ({ ...n, slurEnd: true }))
+        score = updateNote(score, voice, a, (n) => ({ ...n, slurStart: true }))
+        score = updateNote(score, voice, b, (n) => ({ ...n, slurEnd: true }))
       } else {
         const name = pending.kind === 'cresc' ? 'crescendo' : 'diminuendo'
-        score = updateEvent(score, voice, from.index, (e) => toggleDecoration(e, `${name}(`))
-        score = updateEvent(score, voice, index, (e) => toggleDecoration(e, `${name})`))
+        score = updateEvent(score, voice, a, (e) => toggleDecoration(e, `${name}(`))
+        score = updateEvent(score, voice, b, (e) => toggleDecoration(e, `${name})`))
       }
-      return commit(state, score, { pending: null, selected: action.target, cursors: withCursor(state.cursors, voice, index + 1) })
+      return commit(state, score, { pending: null, selected: { voice, index: b }, cursors: withCursor(state.cursors, voice, b + 1) })
     }
     case 'cancelPending': {
       // With nothing selected there is no visible insertion point, so adding resumes at the end.
