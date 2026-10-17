@@ -1,6 +1,6 @@
 import type { TuneObject } from 'abcjs'
 import { barBeats, startBeat, totalBeats, type Score } from './model'
-import { eventNear, type Span } from './serialize'
+import type { Span } from './serialize'
 import { stepFromStaff } from './spell'
 
 /**
@@ -64,7 +64,7 @@ export function hitTest(
   clientX: number,
   clientY: number,
   score: Score,
-  spans: Span[],
+  _spans: Span[],
 ): Hit | null {
   const p = svgPoint(svg, clientX, clientY)
   if (!p) return null
@@ -129,16 +129,9 @@ export function hitTest(
     if (insertion < 0) insertion = events.length
   }
 
-  // Where the ghost sits: after the last real note in that bar, else at the bar's start.
-  const barLeft = m > 0 ? realBars[m - 1].x + realBars[m - 1].w : (group.startx ?? firstNoteX - 12)
-  const barRight = m < realBars.length ? realBars[m].x : Infinity
-  let lastReal: DrawnChild | null = null
-  for (const c of drawn) {
-    if (!isNoteOrRest(c) || c.x < barLeft || c.x >= barRight) continue
-    const real = c.abcelem && eventNear(spans, c.abcelem.startChar ?? -1, c.abcelem.endChar ?? -1)
-    if (real && (!lastReal || c.x > lastReal.x)) lastReal = c
-  }
-  const x = lastReal ? lastReal.x + lastReal.w + 10 : barLeft + 14
+  // The ghost rides under the pointer, snapped to the line or space, so the pitch on
+  // offer is always right where the eye is; the note itself lands in its slot in the bar.
+  const x = p.x
   const y = staff.absoluteY! - pos * STEP
   return { kind: 'place', voice, step, insertion, fillTo, x, y, staff, line }
 }

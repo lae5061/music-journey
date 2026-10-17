@@ -766,6 +766,7 @@ button { font-family: inherit; white-space: nowrap; }
 
 .score-frame { position: relative; }
 .score-edit .score-paper { cursor: crosshair; touch-action: manipulation; }
+.score-edit .score-paper.has-ghost { cursor: none; }
 /* The selected note's tools, floated just above it. */
 .note-pop { position: absolute; z-index: 3; transform: translateY(calc(-100% - 10px)); }
 .note-pop::after {

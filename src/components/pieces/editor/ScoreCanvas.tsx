@@ -189,7 +189,10 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
     return () => box.removeEventListener('scroll', onScroll)
   }, [sync])
 
-  const hideGhost = () => ghost.current?.setAttribute('opacity', '0')
+  const hideGhost = () => {
+    ghost.current?.setAttribute('opacity', '0')
+    box.current?.classList.remove('has-ghost')
+  }
 
   const hitAt = (e: PointerEvent) => {
     const t = tune.current
@@ -213,6 +216,7 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
     for (let y = bottom + 2 * STEP; y <= hit.y + 0.1; y += 2 * STEP) ledgers.push(`<rect x="${hit.x - 9}" y="${y - 0.6}" width="18" height="1.2"/>`)
     g.innerHTML = `${ledgers.join('')}<ellipse cx="${hit.x}" cy="${hit.y}" rx="4.8" ry="3.4" transform="rotate(-20 ${hit.x} ${hit.y})"/>`
     g.setAttribute('opacity', '1')
+    box.current?.classList.add('has-ghost')
   }
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
