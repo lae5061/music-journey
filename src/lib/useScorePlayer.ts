@@ -68,13 +68,15 @@ interface Pitch {
 }
 
 /** How much of a plain note sounds; the rest is the gap that makes a slur audible. */
-const PLAIN_HOLD = 0.82
-const MIN_GAP_S = 0.05
-const MAX_GAP_S = 0.18
+const PLAIN_HOLD = 0.75
+const MIN_GAP_S = 0.06
+const MAX_GAP_S = 0.22
+/** A slurred note runs a hair into the next, so the join is seamless. */
+const LEGATO_OVERLAP_S = 0.03
 
 /** Seconds a note sounds, from its written length and how it is marked. */
 function sounding(durS: number, endType: string | undefined): number {
-  if (endType === 'tenuto') return durS
+  if (endType === 'tenuto') return durS + LEGATO_OVERLAP_S
   if (endType === 'staccato') return durS * 0.5
   const gap = Math.min(MAX_GAP_S, Math.max(MIN_GAP_S, durS * (1 - PLAIN_HOLD)))
   return Math.max(0.08, durS - gap)

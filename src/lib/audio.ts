@@ -91,16 +91,16 @@ function strike(
   add(voice.wave, 0, 1)
   if (voice.partial) add(voice.partial.wave, voice.partial.interval, voice.partial.gain)
 
-  // A struck note decays under its own weight; a held one stays put until released.
-  const decayTo = level * voice.sustain
+  // A struck note decays under its own weight to its sustain level, then holds there
+  // until it is released; the release is quick, so a gap after a note is real silence
+  // and a note held into the next one sounds joined.
+  const decayTo = Math.max(level * voice.sustain, SILENCE)
   out.gain.setValueAtTime(0, at)
   out.gain.linearRampToValueAtTime(level, at + ATTACK_S)
   if (voice.sustain < 1) {
-    out.gain.exponentialRampToValueAtTime(
-      Math.max(decayTo, SILENCE),
-      at + ATTACK_S + duration * 0.6,
-    )
+    out.gain.exponentialRampToValueAtTime(decayTo, at + ATTACK_S + Math.min(duration * 0.6, 0.5))
   }
+  out.gain.setValueAtTime(decayTo, at + duration)
   out.gain.exponentialRampToValueAtTime(SILENCE, at + duration + RELEASE_TAIL_S)
 
   return {
