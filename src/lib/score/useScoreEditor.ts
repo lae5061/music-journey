@@ -222,9 +222,9 @@ export function reduce(state: EditorState, action: Action): EditorState {
       const events = state.score.voices[hand].events
       const current = state.selected ? state.selected.index : action.delta < 0 ? state.cursors[hand] : state.cursors[hand] - 1
       const next = current + action.delta
+      // Off either end: nothing selected, and new notes go on the end as usual.
       if (next < 0 || next >= events.length) {
-        const end = next < 0 ? 0 : events.length
-        return { ...state, selected: null, cursors: withCursor(state.cursors, hand, end) }
+        return { ...state, selected: null, cursors: withCursor(state.cursors, hand, events.length) }
       }
       return { ...state, hand, selected: { voice: hand, index: next }, cursors: withCursor(state.cursors, hand, next + 1) }
     }
@@ -310,8 +310,11 @@ export function reduce(state: EditorState, action: Action): EditorState {
       }
       return commit(state, score, { pending: null, selected: action.target, cursors: withCursor(state.cursors, voice, index + 1) })
     }
-    case 'cancelPending':
-      return { ...state, pending: null, selected: null }
+    case 'cancelPending': {
+      // With nothing selected there is no visible insertion point, so adding resumes at the end.
+      const hand = state.selected?.voice ?? state.hand
+      return { ...state, pending: null, selected: null, cursors: withCursor(state.cursors, hand, state.score.voices[hand].events.length) }
+    }
 
     case 'toggleDecoration': {
       if (!state.selected) return state

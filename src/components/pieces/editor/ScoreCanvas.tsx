@@ -33,7 +33,6 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
   const box = useRef<HTMLDivElement>(null)
   const tune = useRef<TuneObject | null>(null)
   const svg = useRef<SVGSVGElement | null>(null)
-  const cursor = useRef<SVGLineElement | null>(null)
   const ghost = useRef<SVGGElement | null>(null)
   const selectedEls = useRef<Element[]>([])
   const scoreBox = useRef<HTMLDivElement>(null)
@@ -60,37 +59,13 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
     selectedEls.current = []
   }
 
-  /** Put the cursor and the selection where the state says, on the current drawing. */
+  /** Tint the selected note and place its popover, on the current drawing. */
   const sync = useCallback(() => {
     const t = tune.current
-    const line = cursor.current
-    if (!t || !line) return
+    if (!t) return
     const { state: s, spans: sp } = latest.current
     clearSelection()
-    const hand = s.hand
-    const groups = groupsOf(t)
-    if (groups.length === 0) return
-    const at = s.cursors[hand]
-    let x: number
-    let staff = groups[0].staffs[hand]
     let drawn: DrawnChild | null = null
-    if (at > 0) {
-      const found = findDrawn(t, sp, hand, at - 1)
-      if (found) {
-        drawn = found.child
-        x = found.child.x + found.child.w + 3
-        staff = found.group.staffs[hand] ?? staff
-      } else x = 60
-    } else {
-      const first = groups[0].voices[hand]?.children.find((c) => isNoteOrRest(c) || c.type === 'bar')
-      x = (first?.x ?? 70) - 8
-    }
-    if (!staff) return
-    line.setAttribute('x1', String(x))
-    line.setAttribute('x2', String(x))
-    line.setAttribute('y1', String(staffTop(staff) - 2 * STEP))
-    line.setAttribute('y2', String(staffBottom(staff) + 2 * STEP))
-    line.setAttribute('opacity', '1')
     let next: { x: number; y: number } | null = null
     if (s.selected) {
       const found = findDrawn(t, sp, s.selected.voice, s.selected.index)
@@ -118,10 +93,6 @@ export function ScoreCanvas({ text, spans, state, actions, narrow, onNoteOn, onF
       svg.current = el
       // For the DEV console handle.
       if (box.current) (box.current as unknown as { __tune?: unknown }).__tune = t
-      const line = document.createElementNS(SVG_NS, 'line')
-      line.setAttribute('class', 'score-insert')
-      el.appendChild(line)
-      cursor.current = line
       const g = document.createElementNS(SVG_NS, 'g')
       g.setAttribute('class', 'score-ghost')
       g.setAttribute('opacity', '0')
