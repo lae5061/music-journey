@@ -165,18 +165,20 @@ export function serialize(
   { titles = true, wholeSystems = false }: { titles?: boolean; wholeSystems?: boolean } = {},
 ): { text: string; spans: Span[] } {
   const perBar = barBeats(score.meter)
-  const written = Math.max(
-    1,
-    ...score.voices.map((v) => Math.ceil(v.events.reduce((s, e) => s + beats(e), 0) / perBar - 1e-9)),
-  )
-  // The editor shows whole lines of bars, the unwritten ones as rests to click into.
-  const bars = wholeSystems ? Math.max(SYSTEM_BARS, Math.ceil(written / SYSTEM_BARS) * SYSTEM_BARS) : written
+  const longest = Math.max(0, ...score.voices.map((v) => v.events.reduce((s, e) => s + beats(e), 0)))
+  const written = Math.max(1, Math.ceil(longest / perBar - 1e-9))
+  // The editor shows whole lines of bars, the unwritten ones as rests to click into, and
+  // always keeps an empty bar ahead of the music so there is somewhere to put the next note.
+  const lastBarFull = Math.abs(longest / perBar - Math.round(longest / perBar)) < 1e-9 && longest > 0
+  const ahead = lastBarFull ? written + 1 : written
+  const bars = wholeSystems ? Math.max(SYSTEM_BARS, Math.ceil(ahead / SYSTEM_BARS) * SYSTEM_BARS) : written
   const voices = score.voices.map((voice, v) => voiceBars(score, voice, v, bars))
   const [n, d] = score.meter
 
   const lines: string[] = ['X:1']
-  // Rendering only: no tempo mark above the staff. Saved pieces leave layout to the player.
-  if (!titles) lines.push('%%printtempo false')
+  // Rendering only: no tempo mark above the staff, and every line, the last one included,
+  // stretched to the width. Saved pieces leave layout to the player.
+  if (!titles) lines.push('%%printtempo false', '%%stretchlast 1')
   if (titles && score.title) lines.push(`T:${score.title}`)
   if (titles && score.composer) lines.push(`C:${score.composer}`)
   lines.push(`M:${n}/${d}`, 'L:1/8', d === 8 ? `Q:3/8=${score.bpm}` : `Q:1/4=${score.bpm}`)
