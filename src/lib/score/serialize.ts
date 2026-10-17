@@ -5,6 +5,7 @@ import {
   keyAlter,
   letterOf,
   octaveOf,
+  slurPairs,
   type Alter,
   type Length,
   type Score,
@@ -73,6 +74,10 @@ export function decompose(total: number): { length: Length; dotted: boolean }[] 
 /** Bars of tokens for one voice, with accidentals decided against the key and the bar. */
 function voiceBars(score: Score, voice: Voice, v: number, bars: number): Token[][] {
   const perBar = barBeats(score.meter)
+  // A slur mark without its partner would run to the end of the piece; only pairs are written.
+  const pairs = slurPairs(voice.events)
+  const slurStarts = new Set(pairs.map((p) => p.start))
+  const slurEnds = new Set(pairs.map((p) => p.end))
   const out: Token[][] = []
   let bar: Token[] = []
   let filled = 0
@@ -95,7 +100,7 @@ function voiceBars(score: Score, voice: Voice, v: number, bars: number): Token[]
   const emit = (e: ScoreEvent, index: number, length: Length, dotted: boolean, tie: boolean, first: boolean, last: boolean) => {
     let text = ''
     if (first) {
-      if (e.kind === 'note' && e.slurStart) text += '('
+      if (e.kind === 'note' && slurStarts.has(index)) text += '('
       text += e.decorations.map((d) => `!${d}!`).join('')
     }
     if (e.kind === 'rest') text += 'z'
@@ -110,7 +115,7 @@ function voiceBars(score: Score, voice: Voice, v: number, bars: number): Token[]
       text += `[${inner}]`
     }
     text += lengthText(length, dotted)
-    if (last && e.kind === 'note' && e.slurEnd) text += ')'
+    if (last && e.kind === 'note' && slurEnds.has(index)) text += ')'
     if (tie || (last && e.kind === 'note' && e.tie)) text += '-'
     bar.push({ text, event: { voice: v, index } })
     filled += beats({ length, dotted })

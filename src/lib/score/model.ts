@@ -115,4 +115,23 @@ export function emptyScore(hands: 1 | 2 = 2): Score {
   return { title: 'Untitled', composer: '', bpm: 100, key: 0, meter: [4, 4], hands, voices, bars: {} }
 }
 
-export const DEFAULT_DECORATIONS: string[] = []
+/**
+ * Which slur starts go with which ends, in order: each start takes the first unclaimed
+ * end after it. Starts and ends left over are stray and are not drawn.
+ */
+export function slurPairs(events: ScoreEvent[]): { start: number; end: number }[] {
+  const pairs: { start: number; end: number }[] = []
+  const claimed = new Set<number>()
+  events.forEach((e, i) => {
+    if (e.kind !== 'note' || !e.slurStart) return
+    for (let j = i + 1; j < events.length; j++) {
+      const f = events[j]
+      if (f.kind === 'note' && f.slurEnd && !claimed.has(j)) {
+        claimed.add(j)
+        pairs.push({ start: i, end: j })
+        return
+      }
+    }
+  })
+  return pairs
+}

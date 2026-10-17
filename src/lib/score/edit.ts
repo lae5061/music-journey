@@ -2,6 +2,7 @@ import { decompose } from './serialize'
 import {
   barBeats,
   beats,
+  slurPairs,
   startBeat,
   totalBeats,
   type BarType,
@@ -74,7 +75,20 @@ export function fillToBar(score: Score, v: number, bar: number): Score {
 export function removeEvent(score: Score, v: number, index: number): Score {
   const events = score.voices[v].events
   if (index < 0 || index >= events.length) return score
-  return withVoice(score, v, [...events.slice(0, index), ...events.slice(index + 1)])
+  // A slur that started or ended on this note goes with it; its other end is unmarked.
+  const partners = slurPairs(events)
+    .filter((p) => p.start === index || p.end === index)
+    .map((p) => (p.start === index ? p.end : p.start))
+  const kept = events
+    .map((e, i) => {
+      if (!partners.includes(i) || e.kind !== 'note') return e
+      const n = { ...e }
+      if (partners.includes(i) && i > index) delete n.slurEnd
+      if (partners.includes(i) && i < index) delete n.slurStart
+      return n
+    })
+    .filter((_, i) => i !== index)
+  return withVoice(score, v, kept)
 }
 
 export function updateEvent(score: Score, v: number, index: number, fn: (e: ScoreEvent) => ScoreEvent): Score {
