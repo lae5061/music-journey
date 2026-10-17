@@ -586,6 +586,27 @@ button { font-family: inherit; white-space: nowrap; }
 .lesson-keyboard .midi-control { margin-top: var(--space-3); }
 /* No computer keyboard to speak of on a touch screen. */
 @media (pointer: coarse) { .game-keys { display: none; } }
+
+/* Help behind a ? mark, so the screen stays clear until asked. */
+.help-row { display: flex; justify-content: flex-end; margin-top: var(--space-2); }
+.help { position: relative; }
+.help summary {
+  list-style: none; cursor: pointer; width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--color-divider); display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-heading); font-weight: 800; font-size: 15px; color: var(--color-neutral-700);
+  margin-left: auto;
+}
+.help summary::-webkit-details-marker { display: none; }
+.help summary:hover, .help[open] summary { color: var(--color-bg); background: var(--color-accent); border-color: var(--color-accent); }
+.help-panel {
+  margin-top: var(--space-2); padding: var(--space-4); background: var(--color-surface);
+  display: flex; flex-direction: column; gap: var(--space-3); font-size: 13px; max-width: 64ch; margin-left: auto;
+}
+.help-panel .game-keys { margin: 0; }
+.help-keys { display: grid; grid-template-columns: max-content 1fr; gap: 4px var(--space-4); margin: 0; }
+.help-keys dt { font-family: var(--font-heading); font-weight: 800; white-space: nowrap; }
+.help-keys dd { margin: 0; }
+.help-panel .midi-control { margin-top: 0; }
 .game-staff--line { flex-direction: column; align-items: center; gap: var(--space-3); }
 .stream-box { width: 100%; }
 

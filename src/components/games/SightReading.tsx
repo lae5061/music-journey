@@ -12,6 +12,7 @@ import {
   type Placement,
 } from '../../lib/sightReading'
 import { typingHint, useTypingKeys } from '../../lib/useTypingKeys'
+import { HelpToggle } from '../HelpToggle'
 import { MidiControl } from '../MidiControl'
 import { Flash } from './Flash'
 import { Line } from './Line'
@@ -124,8 +125,12 @@ export function SightReading({
       {mode === 'flash' && <Flash key={`${level.id}-${placement}`} {...props} />}
       {mode === 'stream' && <Stream key={`${level.id}-${placement}`} {...props} />}
       {mode === 'line' && <Line key={`${level.id}-${placement}`} {...props} />}
-      <p className="game-keys">{typingHint(octave)}</p>
-      <MidiControl />
+      <div className="help-row">
+        <HelpToggle label="Keyboard and MIDI">
+          <p className="game-keys">{typingHint(octave)}</p>
+          <MidiControl />
+        </HelpToggle>
+      </div>
     </main>
   )
 }

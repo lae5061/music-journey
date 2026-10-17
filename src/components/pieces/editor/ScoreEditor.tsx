@@ -7,6 +7,7 @@ import { useMediaQuery } from '../../../lib/useMediaQuery'
 import type { PlayerStatus, ScorePlayer } from '../../../lib/useScorePlayer'
 import { useScoreSound } from '../../../lib/useScoreSound'
 import { typingHint, useTypingKeys } from '../../../lib/useTypingKeys'
+import { HelpToggle } from '../../HelpToggle'
 import { MidiControl } from '../../MidiControl'
 import { Piano } from '../../Piano'
 import { HeaderFields } from './HeaderFields'
@@ -165,8 +166,27 @@ export function ScoreEditor({ editor, active, pressed, onPressKey, onHoldKey, on
         </ScoreCanvas>
       </div>
       <Piano range={range} focus={BOARD_FOCUS} highlight={highlight} pressed={pressed} onPress={play} label="Keyboard — enter a note" />
-      <p className="game-keys">{typingHint(octave)} Then 1 2 4 8 for the length, R for a rest, Backspace to take one back.</p>
-      <MidiControl />
+      <div className="help-row">
+        <HelpToggle label="Keyboard shortcuts and MIDI">
+          <p className="game-keys">{typingHint(octave)}</p>
+          <dl className="help-keys">
+            <dt>1 2 4 8</dt><dd>whole, half, quarter, eighth</dd>
+            <dt>.</dt><dd>dotted</dd>
+            <dt>R</dt><dd>a rest</dd>
+            <dt>H</dt><dd>switch hand</dd>
+            <dt>K</dt><dd>chord mode</dd>
+            <dt>← →</dt><dd>select the previous or next note</dd>
+            <dt>↑ ↓</dt><dd>nudge the selected note a step; with Shift, a semitone</dd>
+            <dt>S</dt><dd>slur from the selected note</dd>
+            <dt>-</dt><dd>tie the selected note</dd>
+            <dt>Delete</dt><dd>remove the selected note; Backspace takes back the last one</dd>
+            <dt>Esc</dt><dd>back to adding</dd>
+            <dt>⌘Z ⇧⌘Z</dt><dd>undo, redo</dd>
+            <dt>Space</dt><dd>hear it, pause</dd>
+          </dl>
+          <MidiControl />
+        </HelpToggle>
+      </div>
     </>
   )
 }
